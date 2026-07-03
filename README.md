@@ -16,12 +16,13 @@ scoreboards.
 | RTL language | SystemVerilog |
 | Verification | SVA, VC Formal FPV, Questa directed simulation, UVM |
 | Final status | Complete: 18 formal jobs, 7 UVM tests, 100% reachable merged coverage |
-| Sign-off report | [`doc/FinalReport_M5.md`](doc/FinalReport_M5.md) |
+| Sign-off report | [`doc/Precision_Dot_Product_DV_Lab_Final_Report.pdf`](doc/Precision_Dot_Product_DV_Lab_Final_Report.pdf) |
 
 ## Start Here
 
 | Goal | Open |
 |------|------|
+| Read the final PDF report | [`doc/Precision_Dot_Product_DV_Lab_Final_Report.pdf`](doc/Precision_Dot_Product_DV_Lab_Final_Report.pdf) |
 | Understand the full result | [`doc/FinalReport_M5.md`](doc/FinalReport_M5.md) |
 | Inspect the top RTL | [`rtl/dotprod_top.sv`](rtl/dotprod_top.sv) |
 | Inspect the pipelined wrapper | [`rtl/dotprod_seq.sv`](rtl/dotprod_seq.sv) |

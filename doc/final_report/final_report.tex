@@ -1,0 +1,585 @@
+\documentclass[11pt,oneside]{report}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{fontspec}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+\setmainfont{TeX Gyre Pagella}
+\setsansfont{TeX Gyre Heros}
+\setmonofont{Menlo}[Scale=0.82]
+
+\definecolor{navy}{HTML}{172033}
+\definecolor{steel}{HTML}{344054}
+\definecolor{blue}{HTML}{1F6FEB}
+\definecolor{lightblue}{HTML}{EDF4FF}
+\definecolor{lightgray}{HTML}{F2F4F7}
+\definecolor{codebg}{HTML}{F7F9FC}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=blue,
+  citecolor=blue,
+  pdftitle={Precision Dot Product DV Lab: Final Verification Report},
+  pdfauthor={Sasha Katne}
+}
+
+\graphicspath{{doc/final_report/assets/figures/}{doc/final_report/assets/waveforms/}}
+\setlist[itemize]{leftmargin=*, itemsep=2pt, topsep=3pt}
+\setlist[enumerate]{leftmargin=*, itemsep=2pt, topsep=3pt}
+\renewcommand{\arraystretch}{1.18}
+\titleformat{\chapter}{\huge\bfseries\sffamily\color{navy}}{\thechapter}{0.75em}{}
+\titleformat{\section}{\Large\bfseries\sffamily\color{navy}}{\thesection}{0.75em}{}
+\titleformat{\subsection}{\large\bfseries\sffamily\color{steel}}{\thesubsection}{0.75em}{}
+
+\lstdefinestyle{sv}{
+  language=Verilog,
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{lightgray},
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{steel},
+  showstringspaces=false
+}
+\lstdefinestyle{shell}{
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{lightgray},
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false
+}
+
+\pagestyle{fancy}
+\setlength{\headheight}{14pt}
+\fancyhf{}
+\lhead{\sffamily Precision Dot Product DV Lab}
+\rhead{\sffamily Final Verification Report}
+\cfoot{\sffamily \thepage\ of \pageref{LastPage}}
+
+\newcommand{\statuspass}{\textcolor{blue}{\textbf{PASS}}}
+\newcommand{\statusfail}{\textcolor{red}{\textbf{FALSIFIED}}}
+\newcommand{\artifactnote}{Raw tool logs, waveform databases, UCDB files, and transcripts are generated artifacts. They are not checked into the repository; this report includes summarized evidence and curated figures only.}
+
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  \vspace*{0.6in}
+  {\Huge\bfseries\sffamily\color{navy} Precision Dot Product DV Lab\par}
+  \vspace{0.16in}
+  {\Large\bfseries Final Verification Report\par}
+  \vspace{0.28in}
+  {\large INT8, BF16, and NVFP4 Dot-Product Formal + UVM Verification\par}
+  \vspace{0.45in}
+  \begin{tabular}{rl}
+    \textbf{Author:} & Sasha Katne \\
+    \textbf{Project:} & nvfp4-dotprod-formal-dv \\
+    \textbf{Report date:} & 2026-07-03 \\
+    \textbf{Status:} & Complete sign-off, public-safe report \\
+  \end{tabular}
+  \vfill
+  \begin{minipage}{0.82\textwidth}
+  \centering
+  This document consolidates the problem statement, DUT architecture,
+  verification strategy, formal properties, regenerated evidence, waveform
+  figures, coverage closure, and conclusions for the mixed-precision
+  dot-product verification project.
+  \end{minipage}
+  \vfill
+\end{titlepage}
+
+\tableofcontents
+\listoffigures
+\listoftables
+\clearpage
+
+\chapter*{Executive Summary}
+\addcontentsline{toc}{chapter}{Executive Summary}
+
+This project verifies an 8-lane mixed-precision vector dot-product unit across
+three arithmetic tiers: INT8, BF16, and NVIDIA-style NVFP4 block-scaled FP4.
+The verification strategy combines direct formal equivalence, assume-guarantee
+formal decomposition, directed simulation, UVM constrained-random testing, code
+and functional coverage, and bug-injection checks.
+
+\begin{table}[H]
+\centering
+\caption{Final sign-off snapshot}
+\begin{tabular}{ll}
+\toprule
+\textbf{Area} & \textbf{Final status} \\
+\midrule
+Formal proof jobs & 18 total: 11 clean and 7 bug-injected \\
+Clean formal jobs & All target assertions proven \\
+Bug-injected formal jobs & Every mutation falsified at least one intended property \\
+UVM tests & 7 tests, zero mismatches, zero leftovers, zero fatal/errors \\
+Coverage & 100.00\% reachable merged coverage \\
+Waivers & One structurally unreachable branch leg, documented and justified \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The central verification principle is a single-source-of-truth golden model:
+SystemVerilog reference functions in \texttt{ref/} are used by both formal
+properties and simulation scoreboards. This avoids the common verification
+failure mode where a formal checker and a simulation checker silently validate
+against different reference behavior.
+
+\artifactnote
+
+\chapter{Problem Statement and Project Introduction}
+
+\section{Problem Statement}
+
+Modern accelerator datapaths increasingly mix integer and compressed floating
+formats in the same compute block. A dot-product unit is deceptively small, but
+it is verification-dense: sign handling, exact accumulation, final rounding,
+special values, packed element formats, block scaling, ready/valid protocol, and
+coverage closure all interact.
+
+The problem addressed by this project is:
+
+\begin{quote}
+Prove and test that a unified vector dot-product design computes correct results
+for INT8, BF16, and NVFP4 modes, while preserving a correct streaming
+ready/valid interface and demonstrating that the verification environment catches
+representative injected bugs.
+\end{quote}
+
+\section{Verification Goals}
+
+\begin{itemize}
+  \item Prove arithmetic equivalence for INT8 exhaustively.
+  \item Verify the sequential wrapper's ready/valid and backpressure behavior.
+  \item Prove BF16 behavior using a decomposition that avoids monolithic
+        nonlinear equivalence bottlenecks.
+  \item Prove NVFP4 behavior using pure-DUT-net top assertions and standalone
+        lane, scale, and final-round proofs.
+  \item Use the same reference functions from formal and UVM scoreboards.
+  \item Demonstrate proof strength with bug-injected falsification runs.
+  \item Close reachable coverage to 100.00\% and document any unreachable logic.
+\end{itemize}
+
+\section{Numeric Modes}
+
+\begin{longtable}{p{0.16\textwidth}p{0.33\textwidth}p{0.39\textwidth}}
+\caption{Numeric tiers verified in the project}\\
+\toprule
+\textbf{Mode} & \textbf{Computation} & \textbf{Verification emphasis} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Mode} & \textbf{Computation} & \textbf{Verification emphasis} \\
+\midrule
+\endhead
+INT8 & Eight signed 8-bit products summed exactly and cast to a 32-bit output. &
+Exhaustive top equivalence; saturation shown structurally unreachable for one
+8-lane dot product. \\
+BF16 & Eight BF16 products accumulated exactly in a constrained fixed-point
+window, then rounded once to FP32. & Lane decode/product, alignment, special
+case ladder, and final round proven in separate formal pieces. \\
+NVFP4 & Sixteen E2M1 elements per vector share UE4M3 block scales; result is
+FP32. & Lane product, scale multiply, inner sum, and final normalization
+verified with assume-guarantee composition. \\
+\bottomrule
+\end{longtable}
+
+\chapter{DUT Architecture}
+
+\section{Unified Top-Level Datapath}
+
+The top-level DUT exposes widened 16-bit operand lanes and selects the active
+numeric tier using \texttt{mode}. INT8 consumes the low byte; BF16 consumes the
+full 16-bit lane; NVFP4 interprets the operand lanes as a packed block of sixteen
+4-bit elements plus UE4M3 scale bytes.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.94\textwidth]{architecture_dut.pdf}
+\caption{Unified DUT datapath}
+\end{figure}
+
+The output port is 32 bits. In INT8 mode it carries the sign-extended integer
+result. In BF16 and NVFP4 modes it carries an IEEE binary32 bit pattern. Status
+fields carry saturation, invalid, NaN, and infinity indicators; the legacy
+\texttt{sat} output aliases \texttt{status.sat}.
+
+\section{Sequential Wrapper}
+
+The sequential wrapper adds a two-stage ready/valid pipeline around the
+combinational core. A global stall freezes the pipeline whenever a valid output
+is present and the consumer deasserts \texttt{out\_ready}. The key protocol
+contract is that a held output must remain valid and stable under backpressure.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.94\textwidth]{architecture_seq_dut.pdf}
+\caption{Sequential ready/valid wrapper}
+\end{figure}
+
+\section{BF16 Datapath}
+
+The BF16 datapath decodes operands, flushes subnormal inputs to zero, multiplies
+lanes, aligns products into a fixed-point accumulator window, resolves IEEE
+special cases, and performs one final round-nearest ties-to-even conversion to
+FP32.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.94\textwidth]{architecture_bf16_dut.pdf}
+\caption{BF16 datapath and proof decomposition}
+\end{figure}
+
+\section{NVFP4 Datapath}
+
+NVFP4 mode factors the block-scaled dot product into an exact inner sum and a
+scale product:
+\[
+  \sum_i (a_i s_A)(b_i s_B) = (s_A s_B) \sum_i (a_i b_i)
+\]
+The inner E2M1 product sum is exact, the UE4M3 scale product is checked
+separately, and final normalization produces FP32.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.94\textwidth]{architecture_nvfp4_dut.pdf}
+\caption{NVFP4 block-scaled datapath}
+\end{figure}
+
+\chapter{Verification Plan}
+
+\section{Strategy Overview}
+
+The verification plan intentionally uses different proof shapes for different
+logic classes. Linear INT8 arithmetic is handled as a direct exhaustive
+equivalence proof. Nonlinear BF16 and NVFP4 logic is split into smaller proofs
+that can converge independently. The sequential wrapper is verified with
+protocol SVA and UVM stress tests.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.94\textwidth]{architecture_uvm_tb.pdf}
+\caption{UVM environment architecture}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Verification methods by target}
+\begin{tabular}{p{0.18\textwidth}p{0.38\textwidth}p{0.32\textwidth}}
+\toprule
+\textbf{Target} & \textbf{Formal plan} & \textbf{Simulation plan} \\
+\midrule
+INT8 top & Direct top equivalence against \texttt{dotprod\_ref}. &
+Directed corner tests plus UVM random/corner tests. \\
+Sequential wrapper & Ready/valid protocol assertions. &
+Random backpressure and deterministic waveform case. \\
+BF16 & Lane, align, round, special, and top assume-guarantee proofs. &
+BF16 random and directed special-value tests. \\
+NVFP4 & Lane, scale, final round, and pure-DUT-net top proof. &
+NVFP4 random and directed block-scale tests. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{UVM Scoreboard And Coverage}
+
+The UVM environment uses input and output agents around the ready/valid wrapper.
+The scoreboard queues accepted input transactions, calls the appropriate golden
+reference based on \texttt{mode}, and compares each accepted output in order.
+Coverage tracks value classes, protocol states, BF16 operand/result classes, and
+NVFP4 element/scale/result classes.
+
+\section{Bug-Injection Plan}
+
+Bug-injection runs are not optional smoke tests; they are the proof-suite
+sensitivity check. Each mutation is expected to falsify a specific property. A
+clean proof without a corresponding falsification can still be vacuous or too
+weak, so this project pairs clean proof runs with targeted failing variants.
+
+\chapter{Formal Properties}
+
+\section{INT8 Top Equivalence}
+
+The INT8 proof constrains the top to INT8 mode, evaluates the low byte of each
+operand lane with \texttt{dotprod\_ref}, and asserts that result, status, and the
+\texttt{sat} alias all match the reference.
+
+\begin{lstlisting}[style=sv,caption={INT8 top equivalence property}]
+am_int8_mode: assume (mode == FMT_INT8);
+
+a_result_matches_ref: assert (
+    result == FP32_W'(ref_r) &&
+    status.sat == ref_sat &&
+    sat == ref_sat &&
+    !status.invalid && !status.is_nan && !status.is_inf);
+
+c_int8_sat_unreachable: cover (status.sat == 1'b1);
+c_positive_result:      cover ($signed(result) > 0);
+c_negative_result:      cover ($signed(result) < 0);
+\end{lstlisting}
+
+\section{Sequential Protocol Properties}
+
+\begin{lstlisting}[style=sv,caption={Sequential ready/valid protocol properties}]
+p_hold_stable: assert property
+  (out_valid && !out_ready |=>
+     out_valid && $stable(result) && $stable(status) && $stable(sat));
+
+p_no_out_at_reset: assert property
+  ($rose(rst_n) |-> !out_valid);
+
+p_stall_blocks_ready: assert property
+  (out_valid && !out_ready |-> !in_ready);
+
+p_sat_alias: assert property (sat == status.sat);
+
+c_backpressure: cover property (out_valid && !out_ready);
+c_accept:       cover property (in_valid && in_ready);
+\end{lstlisting}
+
+\section{BF16 Properties}
+
+BF16 is decomposed into lane, align, round, special ladder, and top
+assume-guarantee checks. The top proof blackboxes the lane multiplier, assumes
+the standalone lane guarantee, and proves linear pre-round reduction plus
+special case equivalence.
+
+\begin{lstlisting}[style=sv,caption={BF16 top assume-guarantee properties}]
+am_bf16_mode: assume (mode == FMT_BF16);
+
+a_acc_is_lane_sum:            assert (sum_bf16 == lane_sum);
+a_special_valid_matches_ref:  assert (special_valid  == ref_pr.special_valid);
+a_special_result_matches_ref: assert (special_result == ref_pr.special_result);
+a_special_status_matches_ref: assert (special_status == ref_pr.special_status);
+
+c_numeric:  cover (!ref_pr.special_valid);
+c_special:  cover (ref_pr.special_valid);
+c_nan:      cover (ref_pr.special_status.is_nan);
+c_invalid:  cover (ref_pr.special_status.invalid);
+\end{lstlisting}
+
+\section{NVFP4 Properties}
+
+The NVFP4 top proof avoids placing a 16-lane golden multiply inside the hardest
+miter. Instead, it assumes the independently proven lane guarantee and asserts
+only over DUT nets for alignment and accumulation.
+
+\begin{lstlisting}[style=sv,caption={NVFP4 top assume-guarantee properties}]
+am_lane_ref:   assume (nvfp4_prod[gi] == ref_mul_nvfp4(nv_ea[gi], nv_eb[gi]));
+a_align_lane:  assert (nvfp4_wide[gi] == NVFP4_INNER_W'(nvfp4_prod[gi].prod));
+
+am_nvfp4_mode: assume (mode == FMT_NVFP4);
+a_inner_is_lane_sum: assert (nvfp4_inner_sum == lane_sum);
+a_scale_sig_ref:     assert (nvfp4_scale_sig == ref_pr.scale_sig);
+a_scale_exp_ref:     assert (nvfp4_scale_exp == ref_pr.scale_exp);
+a_scale_nan_ref:     assert (nvfp4_scale_is_nan == ref_pr.scale_is_nan);
+\end{lstlisting}
+
+The final-round proof checks both normal numeric behavior and NaN-scale bypass:
+
+\begin{lstlisting}[style=sv,caption={NVFP4 final-round properties}]
+a_numeric_round: assert (scale_is_nan ||
+  (result == ref_result && status == ref_status));
+
+a_nan_bypass: assert (!scale_is_nan ||
+  (result == FP32_QNAN && status.invalid && status.is_nan &&
+   !status.is_inf && !status.sat));
+\end{lstlisting}
+
+\chapter{Sign-Off Evidence and Regenerated Waveforms}
+
+\section{Formal Results}
+
+The formal, UVM, and coverage tables consolidate the M5 sign-off record
+preserved in the repository documentation. The timing figures in this chapter
+were regenerated with report-specific self-checking testbenches so the PDF
+contains curated waveform evidence without checking raw VCD or transcript
+artifacts into source control.
+
+\begin{longtable}{p{0.36\textwidth}p{0.16\textwidth}p{0.18\textwidth}p{0.18\textwidth}}
+\caption{Unified formal proof results}\\
+\toprule
+\textbf{Proof job} & \textbf{Tier} & \textbf{Clean outcome} & \textbf{Bug outcome} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Proof job} & \textbf{Tier} & \textbf{Clean outcome} & \textbf{Bug outcome} \\
+\midrule
+\endhead
+\texttt{fpv\_run\_top} & INT8 & 1 assert proven & Bug falsifies result equivalence \\
+\texttt{fpv\_run\_seq} & INT8 wrapper & 4 asserts proven & Bug falsifies \texttt{p\_hold\_stable} \\
+\texttt{fpv\_run\_lane\_bf16} & BF16 & 21 asserts proven & Lane mutation falsifies \\
+\texttt{fpv\_run\_align\_bf16} & BF16 & 8 asserts proven & Align mutation falsifies \\
+\texttt{fpv\_run\_round\_bf16} & BF16 & 2 asserts proven & Round mutation falsifies \\
+\texttt{fpv\_run\_special\_bf16} & BF16 & 5 asserts proven & Covered by top special mutation \\
+\texttt{fpv\_run\_bf16\_top} & BF16 & 4 asserts proven & Special mutation falsifies \\
+\texttt{fpv\_run\_lane\_nvfp4} & NVFP4 & 5 asserts proven & Lane mutation falsifies \\
+\texttt{fpv\_run\_scale\_nvfp4} & NVFP4 & 3 asserts proven & Scale mutation falsifies \\
+\texttt{fpv\_run\_round\_nvfp4} & NVFP4 & 2 asserts proven & NaN-bypass mutation falsifies \\
+\texttt{fpv\_run\_nvfp4\_top} & NVFP4 & 20 asserts proven & NaN-detect mutation falsifies \\
+\bottomrule
+\end{longtable}
+
+\section{UVM And Coverage Results}
+
+\begin{table}[H]
+\centering
+\caption{Final UVM regression tests}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Test} & \textbf{Items} & \textbf{Matched} & \textbf{Mismatched} & \textbf{Leftover} \\
+\midrule
+\texttt{dotprod\_random\_test} & 500 & 500 & 0 & 0 \\
+\texttt{dotprod\_backpressure\_test} & 1000 & 1000 & 0 & 0 \\
+\texttt{dotprod\_corner\_test} & 8 & 8 & 0 & 0 \\
+\texttt{dotprod\_bf16\_test} & 500 & 500 & 0 & 0 \\
+\texttt{dotprod\_bf16\_corner\_test} & 8 & 8 & 0 & 0 \\
+\texttt{dotprod\_nvfp4\_test} & 500 & 500 & 0 & 0 \\
+\texttt{dotprod\_nvfp4\_corner\_test} & 8 & 8 & 0 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Merged coverage closure}
+\begin{tabular}{lr}
+\toprule
+\textbf{Metric} & \textbf{Result} \\
+\midrule
+Statements & 100\% \\
+Branches & 100\% \\
+Expressions & 100\% \\
+Covergroups & 100\% \\
+Covergroup bins & 127/127 \\
+Total & 100.00\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Waveform: Combinational Top Behavior}
+
+Figure \ref{fig:top-modes-wave} shows the report-specific deterministic top
+waveform. The sequence exercises INT8, BF16, NVFP4 numeric, and NVFP4 NaN-scale
+cases. The DUT result tracks the expected result from the same golden reference
+functions used by the scoreboards.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{top_modes.pdf}
+\caption{Combinational top waveform: multi-mode behavior}
+\label{fig:top-modes-wave}
+\end{figure}
+
+\section{Waveform: Clean Backpressure Hold}
+
+Figure \ref{fig:seq-clean-wave} shows the sequential wrapper holding output
+valid and result stable while \texttt{out\_ready} is low. The report assertion
+flag remains low.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{seq_clean.pdf}
+\caption{Sequential wrapper waveform: clean backpressure hold}
+\label{fig:seq-clean-wave}
+\end{figure}
+
+\section{Waveform: Bug-Injected Assertion Failure}
+
+Figure \ref{fig:seq-bug-wave} shows the bug-injected wrapper dropping
+\texttt{out\_valid} under backpressure. This directly violates the
+\texttt{p\_hold\_stable} contract and raises the report assertion failure flag.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{seq_bug.pdf}
+\caption{Sequential wrapper waveform: bug-injected \texttt{p\_hold\_stable} failure}
+\label{fig:seq-bug-wave}
+\end{figure}
+
+\chapter{Bug-Injection Traceability}
+
+\begin{longtable}{p{0.14\textwidth}p{0.32\textwidth}p{0.28\textwidth}p{0.14\textwidth}}
+\caption{Seeded bugs and detection points}\\
+\toprule
+\textbf{Tier} & \textbf{Seeded fault} & \textbf{Catching property/check} & \textbf{Outcome} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Tier} & \textbf{Seeded fault} & \textbf{Catching property/check} & \textbf{Outcome} \\
+\midrule
+\endhead
+INT8 & LSB corruption in final rounding & \texttt{a\_result\_matches\_ref} & Falsified \\
+INT8 wrapper & Drop held output under stall & \texttt{p\_hold\_stable} & Falsified \\
+BF16 & Subnormal no longer flushed to zero & Lane decode/product assertions & Falsified \\
+BF16 & Alignment off by one & \texttt{a\_align\_lane} & Falsified \\
+BF16 & Truncate instead of RNE & \texttt{a\_numeric\_round} & Falsified \\
+BF16 & Inf-minus-Inf dropped & Top special-ladder assertions & Falsified \\
+NVFP4 & E2M1 6.0 decoded incorrectly & Lane decode/product assertions & Falsified \\
+NVFP4 & UE4M3 exponent bias off by one & \texttt{a\_exp} & Falsified \\
+NVFP4 & NaN scale detection threshold changed & \texttt{a\_scale\_nan\_ref} & Falsified \\
+NVFP4 & NaN bypass disabled in final round & \texttt{a\_nan\_bypass} & Falsified \\
+\bottomrule
+\end{longtable}
+
+\chapter{Conclusion}
+
+The project demonstrates a complete verification story for a compact but
+high-risk mixed-precision arithmetic block. The final evidence supports these
+conclusions:
+
+\begin{itemize}
+  \item The INT8 datapath is exhaustively equivalent to the golden reference.
+  \item The sequential wrapper satisfies ready/valid stability, reset, stall,
+        and status-alias properties.
+  \item The BF16 tier is proven by decomposing nonlinear logic into tractable
+        standalone proofs and a top-level pre-round assume-guarantee proof.
+  \item The NVFP4 tier is proven using lane, scale, round, and pure-DUT-net top
+        properties that avoid expensive golden multiply elaboration in the top
+        miter.
+  \item The UVM regression validates integrated behavior across all supported
+        modes with zero scoreboard residue or mismatches.
+  \item Bug-injection runs confirm the proof suite has teeth: every targeted
+        mutation is caught.
+  \item Reachable coverage closes to 100.00\%; the remaining waiver is
+        structurally justified.
+\end{itemize}
+
+The resulting methodology is reusable: keep golden references shared, isolate
+nonlinear blocks, prove protocol separately from arithmetic, and pair every
+clean proof family with a meaningful failing mutation.
+
+\appendix
+\chapter{Reproduction Commands}
+
+The report artifacts are generated with the following commands from the repo
+root, assuming compatible EDA tools are available in the shell environment:
+
+\begin{lstlisting}[style=shell,caption={Report evidence and PDF build commands}]
+bash doc/final_report/scripts/run_report_regression.sh
+vsim -c -do doc/final_report/scripts/run_report_waveforms.do
+bash doc/final_report/scripts/build_assets.sh
+bash doc/final_report/scripts/build_report.sh
+\end{lstlisting}
+
+\artifactnote
+
+\end{document}

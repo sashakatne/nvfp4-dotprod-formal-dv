@@ -38,10 +38,22 @@ formal/run/logs/
 *.aux
 *.log
 *.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+doc/final_report/build/
+doc/final_report/generated/
 
 # OS
 .DS_Store
 ._*
+
+# Python caches
+__pycache__/
+*.py[cod]
 
 # Agent/tool scratch
 CLAUDE.md
