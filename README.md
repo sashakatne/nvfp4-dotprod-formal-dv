@@ -15,7 +15,7 @@ scoreboards.
 | Numeric tiers | INT8, BF16, NVFP4 block-scaled FP4 |
 | RTL language | SystemVerilog |
 | Verification | SVA, VC Formal FPV, Questa directed simulation, UVM |
-| Final status | Complete: 18 formal jobs, 7 UVM tests, 100% reachable merged coverage |
+| Final status | Complete: 22 formal jobs, 7 UVM tests, 100% reachable merged coverage |
 | Sign-off report | [`doc/Precision_Dot_Product_DV_Lab_Final_Report.pdf`](doc/Precision_Dot_Product_DV_Lab_Final_Report.pdf) |
 
 ## Start Here
@@ -171,6 +171,8 @@ properties.
 ```bash
 cd formal/run
 vcf -batch -f fpv_run_lane_bf16.tcl
+vcf -batch -f fpv_run_lane_bf16_buginjected.tcl
+vcf -batch -f fpv_run_lane_bf16_oor_buginjected.tcl
 vcf -batch -f fpv_run_align_bf16.tcl
 vcf -batch -f fpv_run_round_bf16.tcl
 vcf -batch -f fpv_run_special_bf16.tcl
@@ -179,7 +181,8 @@ vcf -batch -f fpv_run_bf16_top_buginjected.tcl
 ```
 
 Expected result: lane, align, round, special-case, and top assume-guarantee
-proofs converge; the injected top mutation falsifies.
+proofs converge over the full BF16 input space; the lane FTZ mutation, the
+out-of-range mutation, and the injected top mutation each falsify.
 
 </details>
 

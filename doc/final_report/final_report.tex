@@ -127,8 +127,8 @@ and functional coverage, and bug-injection checks.
 \toprule
 \textbf{Area} & \textbf{Final status} \\
 \midrule
-Formal proof jobs & 18 total: 11 clean and 7 bug-injected \\
-Clean formal jobs & All target assertions proven \\
+Formal proof jobs & 22 total: 11 clean and 11 bug-injected \\
+Clean formal jobs & All target assertions proven (BF16 proven over the full input space) \\
 Bug-injected formal jobs & Every mutation falsified at least one intended property \\
 UVM tests & 7 tests, zero mismatches, zero leftovers, zero fatal/errors \\
 Coverage & 100.00\% reachable merged coverage \\
@@ -193,9 +193,11 @@ representative injected bugs.
 INT8 & Eight signed 8-bit products summed exactly and cast to a 32-bit output. &
 Exhaustive top equivalence; saturation shown structurally unreachable for one
 8-lane dot product. \\
-BF16 & Eight BF16 products accumulated exactly in a constrained fixed-point
-window, then rounded once to FP32. & Lane decode/product, alignment, special
-case ladder, and final round proven in separate formal pieces. \\
+BF16 & Eight BF16 products accumulated exactly in the fixed-point window
+[119,134], then rounded once to FP32; out-of-window operands are flagged as an
+invalid operation. & Lane decode/product, alignment, special case ladder, and
+final round proven in separate formal pieces; equivalence proven over the full
+BF16 input space. \\
 NVFP4 & Sixteen E2M1 elements per vector share UE4M3 block scales; result is
 FP32. & Lane product, scale multiply, inner sum, and final normalization
 verified with assume-guarantee composition. \\
@@ -426,7 +428,7 @@ artifacts into source control.
 \endhead
 \texttt{fpv\_run\_top} & INT8 & 1 assert proven & Bug falsifies result equivalence \\
 \texttt{fpv\_run\_seq} & INT8 wrapper & 4 asserts proven & Bug falsifies \texttt{p\_hold\_stable} \\
-\texttt{fpv\_run\_lane\_bf16} & BF16 & 21 asserts proven & Lane mutation falsifies \\
+\texttt{fpv\_run\_lane\_bf16} & BF16 & 24 asserts proven & FTZ and out-of-range mutations falsify \\
 \texttt{fpv\_run\_align\_bf16} & BF16 & 8 asserts proven & Align mutation falsifies \\
 \texttt{fpv\_run\_round\_bf16} & BF16 & 2 asserts proven & Round mutation falsifies \\
 \texttt{fpv\_run\_special\_bf16} & BF16 & 5 asserts proven & Covered by top special mutation \\
@@ -449,9 +451,9 @@ artifacts into source control.
 \midrule
 \texttt{dotprod\_random\_test} & 500 & 500 & 0 & 0 \\
 \texttt{dotprod\_backpressure\_test} & 1000 & 1000 & 0 & 0 \\
-\texttt{dotprod\_corner\_test} & 8 & 8 & 0 & 0 \\
+\texttt{dotprod\_corner\_test} & 9 & 9 & 0 & 0 \\
 \texttt{dotprod\_bf16\_test} & 500 & 500 & 0 & 0 \\
-\texttt{dotprod\_bf16\_corner\_test} & 8 & 8 & 0 & 0 \\
+\texttt{dotprod\_bf16\_corner\_test} & 10 & 10 & 0 & 0 \\
 \texttt{dotprod\_nvfp4\_test} & 500 & 500 & 0 & 0 \\
 \texttt{dotprod\_nvfp4\_corner\_test} & 8 & 8 & 0 & 0 \\
 \bottomrule
@@ -469,7 +471,7 @@ Statements & 100\% \\
 Branches & 100\% \\
 Expressions & 100\% \\
 Covergroups & 100\% \\
-Covergroup bins & 127/127 \\
+Covergroup bins & 206/206 \\
 Total & 100.00\% \\
 \bottomrule
 \end{tabular}
@@ -530,6 +532,7 @@ Figure \ref{fig:seq-bug-wave} shows the bug-injected wrapper dropping
 INT8 & LSB corruption in final rounding & \texttt{a\_result\_matches\_ref} & Falsified \\
 INT8 wrapper & Drop held output under stall & \texttt{p\_hold\_stable} & Falsified \\
 BF16 & Subnormal no longer flushed to zero & Lane decode/product assertions & Falsified \\
+BF16 & Out-of-window operand not flagged & \texttt{a\_product\_matches\_ref}, \texttt{a\_oor\_forces\_invalid\_nan} & Falsified \\
 BF16 & Alignment off by one & \texttt{a\_align\_lane} & Falsified \\
 BF16 & Truncate instead of RNE & \texttt{a\_numeric\_round} & Falsified \\
 BF16 & Inf-minus-Inf dropped & Top special-ladder assertions & Falsified \\
@@ -551,7 +554,9 @@ conclusions:
   \item The sequential wrapper satisfies ready/valid stability, reset, stall,
         and status-alias properties.
   \item The BF16 tier is proven by decomposing nonlinear logic into tractable
-        standalone proofs and a top-level pre-round assume-guarantee proof.
+        standalone proofs and a top-level pre-round assume-guarantee proof, over
+        the full BF16 input space: out-of-window operands are detected and
+        resolved to a canonical invalid QNaN rather than a silently-wrong result.
   \item The NVFP4 tier is proven using lane, scale, round, and pure-DUT-net top
         properties that avoid expensive golden multiply elaboration in the top
         miter.

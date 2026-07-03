@@ -134,6 +134,10 @@ Merged from seven UCDBs (`merged_excl.ucdb`). Summary: `verif/sim/coverage/cover
 | Covergroup bins | 100% (127/127) |
 | **Total** | **100.00%** |
 
+> The counts above are the M5 sign-off snapshot. The post-review hardening pass
+> (§6b) added covergroups and crosses; the current merged total is 100.00% with
+> 206/206 covergroup bins.
+
 ### Waiver
 
 One FEC (feasibility) leg is structurally unreachable and waived:
@@ -193,7 +197,7 @@ vcf -batch -f fpv_run_nvfp4_top_buginjected.tcl
 vsim -c -do run.do
 ```
 
-Expected outcome: all 18 formal proof jobs report no falsified assertions in the clean variants and at least one falsified assertion in each bug-injected variant; all 7 UVM tests report `mismatched=0 leftover=0 UVM_ERROR=0 UVM_FATAL=0`; merged coverage reports 100.00%.
+Expected outcome: all formal proof jobs report no falsified assertions in the clean variants and at least one falsified assertion in each bug-injected variant; all 7 UVM tests report `mismatched=0 leftover=0 UVM_ERROR=0 UVM_FATAL=0`; merged coverage reports 100.00%. (The suite grew to 22 jobs in the post-review hardening pass; see §6b.)
 
 ---
 
