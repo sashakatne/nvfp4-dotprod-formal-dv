@@ -1,87 +1,192 @@
-# nvfp4-dotprod-formal-dv
+# Precision Dot Product DV Lab
+
+**Formal and UVM verification for an INT8, BF16, and NVFP4 vector dot-product core**
 
 **Author:** Sasha Katne
 
-Formal and simulation verification of an 8-lane mixed-precision vector
-dot-product unit with an exact wide accumulator. Supported formats:
+This repository verifies an 8-lane mixed-precision dot-product unit using formal
+property verification, directed simulation, and a UVM constrained-random
+environment. The design uses exact accumulation internally and shares the same
+SystemVerilog golden references between formal assertions and simulation
+scoreboards.
 
-- INT8, with a combinational datapath and a pipelined ready/valid wrapper.
-- BF16, with exact fixed-point accumulation and a single IEEE binary32 round.
-- NVFP4 block-scaled FP4, with E2M1 elements and UE4M3 block scales.
+| Area | Summary |
+|------|---------|
+| Numeric tiers | INT8, BF16, NVFP4 block-scaled FP4 |
+| RTL language | SystemVerilog |
+| Verification | SVA, VC Formal FPV, Questa directed simulation, UVM |
+| Final status | Complete: 18 formal jobs, 7 UVM tests, 100% reachable merged coverage |
+| Sign-off report | [`doc/FinalReport_M5.md`](doc/FinalReport_M5.md) |
 
-The verification methodology uses shared SystemVerilog golden references in
-`ref/` for both formal assertions and simulation scoreboards, reducing model
-drift between the two verification methods.
+## Start Here
 
-See `doc/FinalReport_M5.md` for the whole-project sign-off summary. Raw tool
-logs, transcripts, and coverage databases are generated artifacts and are not
-checked into the repository.
+| Goal | Open |
+|------|------|
+| Understand the full result | [`doc/FinalReport_M5.md`](doc/FinalReport_M5.md) |
+| Inspect the top RTL | [`rtl/dotprod_top.sv`](rtl/dotprod_top.sv) |
+| Inspect the pipelined wrapper | [`rtl/dotprod_seq.sv`](rtl/dotprod_seq.sv) |
+| Read the golden models | [`ref/`](ref) |
+| Browse formal properties | [`formal/RTL/`](formal/RTL) |
+| Browse UVM components | [`verif/uvm/`](verif/uvm) |
+| Run directed simulation | [`sim/run.do`](sim/run.do) |
+| Run the UVM regression | [`verif/sim/run.do`](verif/sim/run.do) |
 
-## Repository Layout
+## What Was Verified
 
-| Path | Description |
-|------|-------------|
-| `rtl/` | Synthesizable RTL: `dotprod_pkg`, `dotprod_top`, and submodules |
-| `ref/` | Golden reference models shared by formal and simulation |
-| `formal/RTL/` | SVA modules, bind files, and filelists |
-| `formal/run/` | VC Formal Tcl scripts for clean and bug-injected runs |
-| `sim/tb/` | Directed SystemVerilog testbenches |
-| `sim/run.do` | Directed Questa compile/run script |
-| `verif/uvm/` | UVM environment, sequences, scoreboard, coverage, and tests |
-| `verif/tb/` | UVM top-level testbench |
-| `verif/sim/run.do` | UVM compile/run script |
-| `doc/` | Design specs, verification plans, final reports, and diagrams |
+The project closes three arithmetic tiers plus a streaming wrapper:
 
-## Milestone Arc
+```mermaid
+flowchart LR
+  A[Input vectors] --> B{Mode}
+  B -->|INT8| C[Exact signed INT8 dot product]
+  B -->|BF16| D[BF16 lanes + exact fixed-point accumulator]
+  B -->|NVFP4| E[E2M1 elements + UE4M3 block scales]
+  C --> F[Shared output/status]
+  D --> F
+  E --> F
+  F --> G[Formal assertions]
+  F --> H[UVM scoreboard]
+  I[Golden references in ref/] --> G
+  I --> H
+```
 
-| Milestone | Status | Content |
-|-----------|--------|---------|
-| M1 | Complete | INT8 RTL, FPV proof, directed sim, bug injection, docs |
-| M2 | Complete | INT8 sequential pipeline, UVM environment, protocol FPV, coverage |
-| M3 | Complete | BF16 tier, assume-guarantee formal decomposition, UVM BF16 regression |
-| M4 | Complete | NVFP4 tier, block-scaled FP4 datapath, assume-guarantee proof, UVM NVFP4 regression |
-| M5 | Complete | Full regression sweep, NVFP4 final-round proof, 100% reachable merged coverage |
+| Tier | Main proof strategy | Simulation strategy | Result |
+|------|---------------------|---------------------|--------|
+| INT8 | Exhaustive top equivalence against `dotprod_ref` | Directed smoke plus UVM random/corner tests | Proven |
+| Sequential wrapper | Protocol SVA for ready/valid and backpressure | UVM backpressure tests | Proven |
+| BF16 | Assume-guarantee decomposition across lane, align, round, and top | BF16 random/corner UVM tests | Proven |
+| NVFP4 | Pure-DUT-net assume-guarantee proof plus standalone scale/lane/round proofs | NVFP4 random/corner UVM tests | Proven |
 
-## Verification Summary
+## Verification Dashboard
 
-The final sweep covers 18 formal proof jobs and 7 UVM tests:
+| Metric | Final M5 result |
+|--------|-----------------|
+| Formal jobs | 18 total: 11 clean, 7 bug-injected |
+| Clean formal runs | All target assertions proven |
+| Bug-injected runs | Each mutation falsifies at least one intended assertion |
+| UVM tests | 7 tests, zero mismatches, zero leftovers |
+| Coverage | 100.00% reachable merged coverage |
+| Waivers | One structurally unreachable branch leg, documented in [`verif/sim/coverage_waivers.do`](verif/sim/coverage_waivers.do) |
 
-- All clean formal variants prove their target assertions.
-- Each bug-injected variant falsifies at least one intended assertion.
-- All UVM tests report zero mismatches, zero leftovers, and zero fatal/errors.
-- Merged reachable coverage is 100.00% after applying the documented waiver in
-  `verif/sim/coverage_waivers.do`.
+Two cover goals are intentionally unreachable:
 
-Two cover goals are structurally unreachable and documented in
-`doc/FinalReport_M5.md`:
-
-- INT8 saturation cannot occur for a single 8-lane dot product because the
-  maximum exact sum fits far below the 32-bit saturating output range.
+- INT8 saturation cannot occur for a single 8-lane dot product because the exact
+  maximum sum fits well below the 32-bit output range.
 - The maximum NVFP4 scale significand condition cannot occur because the largest
   E2M1 significand product is below the covered threshold.
 
-## Reproduction
+## Repository Map
+
+<details open>
+<summary><strong>Core design and reference model</strong></summary>
+
+| Path | What it contains |
+|------|------------------|
+| [`rtl/`](rtl) | Synthesizable datapath, top, sequential wrapper, and format-specific stages |
+| [`ref/`](ref) | Shared SystemVerilog golden reference functions |
+| [`doc/`](doc) | Design specs, verification plans, reports, and architecture diagrams |
+
+</details>
+
+<details>
+<summary><strong>Formal verification</strong></summary>
+
+| Path | What it contains |
+|------|------------------|
+| [`formal/RTL/`](formal/RTL) | SVA modules, bind files, and formal filelists |
+| [`formal/run/`](formal/run) | VC Formal Tcl scripts for clean and bug-injected jobs |
+
+The formal suite uses small standalone proofs where possible, then composes
+larger top-level guarantees by transitivity. This keeps nonlinear golden calls
+out of the hardest equivalence miters.
+
+</details>
+
+<details>
+<summary><strong>Simulation and UVM</strong></summary>
+
+| Path | What it contains |
+|------|------------------|
+| [`sim/tb/`](sim/tb) | Directed SystemVerilog testbenches |
+| [`sim/run.do`](sim/run.do) | Directed simulation run script |
+| [`verif/tb/`](verif/tb) | UVM top-level testbench |
+| [`verif/uvm/`](verif/uvm) | UVM agents, sequences, scoreboard, coverage, and tests |
+| [`verif/sim/run.do`](verif/sim/run.do) | UVM regression run script |
+
+Raw logs, transcripts, UCDBs, and coverage reports are generated artifacts and
+are intentionally ignored.
+
+</details>
+
+## Runbook
 
 These commands assume compatible VC Formal and Questa installations are already
-configured in the shell environment.
+available in the shell environment.
+
+<details open>
+<summary><strong>Directed simulation</strong></summary>
 
 ```bash
-# INT8 formal
+cd sim
+vsim -c -do run.do
+```
+
+Expected result: directed testbenches complete with no scoreboard mismatches.
+
+</details>
+
+<details>
+<summary><strong>UVM regression</strong></summary>
+
+```bash
+cd verif/sim
+vsim -c -do run.do
+```
+
+Expected result: all enabled UVM tests complete with `mismatched=0`,
+`leftover=0`, `UVM_ERROR=0`, and `UVM_FATAL=0`.
+
+</details>
+
+<details>
+<summary><strong>INT8 formal proofs</strong></summary>
+
+```bash
 cd formal/run
 vcf -batch -f fpv_run_top.tcl
 vcf -batch -f fpv_run_top_buginjected.tcl
 vcf -batch -f fpv_run_seq.tcl
 vcf -batch -f fpv_run_seq_buginjected.tcl
+```
 
-# BF16 formal
+Expected result: clean proofs prove; bug-injected variants falsify their target
+properties.
+
+</details>
+
+<details>
+<summary><strong>BF16 formal proofs</strong></summary>
+
+```bash
+cd formal/run
 vcf -batch -f fpv_run_lane_bf16.tcl
 vcf -batch -f fpv_run_align_bf16.tcl
 vcf -batch -f fpv_run_round_bf16.tcl
 vcf -batch -f fpv_run_special_bf16.tcl
 vcf -batch -f fpv_run_bf16_top.tcl
 vcf -batch -f fpv_run_bf16_top_buginjected.tcl
+```
 
-# NVFP4 formal
+Expected result: lane, align, round, special-case, and top assume-guarantee
+proofs converge; the injected top mutation falsifies.
+
+</details>
+
+<details>
+<summary><strong>NVFP4 formal proofs</strong></summary>
+
+```bash
+cd formal/run
 vcf -batch -f fpv_run_lane_nvfp4.tcl
 vcf -batch -f fpv_run_lane_nvfp4_buginjected.tcl
 vcf -batch -f fpv_run_scale_nvfp4.tcl
@@ -90,16 +195,83 @@ vcf -batch -f fpv_run_round_nvfp4.tcl
 vcf -batch -f fpv_run_round_nvfp4_buginjected.tcl
 vcf -batch -f fpv_run_nvfp4_top.tcl
 vcf -batch -f fpv_run_nvfp4_top_buginjected.tcl
-
-# Directed simulation
-cd ../../sim
-vsim -c -do run.do
-
-# UVM regression
-cd ../verif/sim
-vsim -c -do run.do
 ```
 
-Expected outcome: clean formal runs prove, bug-injected formal runs falsify their
-target properties, directed simulation passes, and UVM regression completes with
-zero scoreboard mismatches.
+Expected result: clean lane, scale, round, and top proofs converge; each
+bug-injected variant falsifies the relevant property.
+
+</details>
+
+## Milestone Guide
+
+<details>
+<summary><strong>M1: INT8 combinational core</strong></summary>
+
+- Design: [`doc/DesignSpec.md`](doc/DesignSpec.md)
+- Plan: [`doc/VerificationPlan.md`](doc/VerificationPlan.md)
+- Report: [`doc/FinalReport.md`](doc/FinalReport.md)
+
+M1 proves the exact INT8 combinational dot product directly against the shared
+golden model.
+
+</details>
+
+<details>
+<summary><strong>M2: Sequential wrapper and UVM environment</strong></summary>
+
+- Design: [`doc/DesignSpec_M2.md`](doc/DesignSpec_M2.md)
+- Plan: [`doc/VerificationPlan_M2.md`](doc/VerificationPlan_M2.md)
+- Report: [`doc/FinalReport_M2.md`](doc/FinalReport_M2.md)
+
+M2 wraps the combinational core in a ready/valid pipeline and verifies protocol
+behavior with SVA plus a reusable UVM environment.
+
+</details>
+
+<details>
+<summary><strong>M3: BF16 tier</strong></summary>
+
+- Design: [`doc/DesignSpec_M3.md`](doc/DesignSpec_M3.md)
+- Plan: [`doc/VerificationPlan_M3.md`](doc/VerificationPlan_M3.md)
+- Report: [`doc/FinalReport_M3.md`](doc/FinalReport_M3.md)
+
+M3 adds BF16 special-value handling, exact accumulation in a bounded exponent
+window, and a single final round to FP32.
+
+</details>
+
+<details>
+<summary><strong>M4: NVFP4 tier</strong></summary>
+
+- Design: [`doc/DesignSpec_M4.md`](doc/DesignSpec_M4.md)
+- Plan: [`doc/VerificationPlan_M4.md`](doc/VerificationPlan_M4.md)
+- Report: [`doc/FinalReport_M4.md`](doc/FinalReport_M4.md)
+
+M4 adds the NVFP4 block-scaled datapath and verifies the inner product, scale
+multiply, and top composition.
+
+</details>
+
+<details>
+<summary><strong>M5: Unified sign-off</strong></summary>
+
+- Report: [`doc/FinalReport_M5.md`](doc/FinalReport_M5.md)
+- Waiver: [`verif/sim/coverage_waivers.do`](verif/sim/coverage_waivers.do)
+
+M5 completes the NVFP4 final-round proof, reruns the full regression, and closes
+reachable merged coverage to 100.00%.
+
+</details>
+
+## Artifact Policy
+
+Generated EDA outputs are intentionally not tracked:
+
+- Formal run databases and logs
+- Simulation transcripts
+- Waveforms
+- UCDB coverage databases and generated coverage reports
+- Local tool scratch directories
+
+The checked-in source tree is intended to be reproducible from RTL, reference
+models, formal scripts, simulation scripts, UVM source, and summarized reports.
