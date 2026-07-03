@@ -1,0 +1,32 @@
+`ifndef ALIGN_BF16_SVA
+`define ALIGN_BF16_SVA
+import dotprod_pkg::*;
+
+// Standalone proof that align_bf16 places each lane product into the fixed-point
+// accumulator scale exactly as the golden ref_align_bf16_lane. Per-lane and
+// combinational, so the barrel-shift alignment proves cheaply. Composed with the
+// exact_acc_tree linear add, this discharges sum_bf16 == golden acc without one
+// large miter (the top proof then only needs the special ladder).
+module align_bf16_sva (
+  input bf16_product_t                prod [N_LANES],
+  input logic signed [ACC_BF16_W-1:0] wide [N_LANES]
+);
+  // Constrain q to the reachable window so the shift domain matches what the
+  // multiplier can actually produce (a.q,b.q in [-15,0] each -> sum in [-30,0]).
+  for (genvar gi = 0; gi < N_LANES; gi++) begin : g_lane
+    always_comb begin
+      am_q_window: assume (prod[gi].q >= -30 && prod[gi].q <= 0);
+      a_align_lane: assert (wide[gi] == ref_align_bf16_lane(prod[gi]));
+    end
+  end
+
+  always_comb begin
+    c_finite_pos: cover (!prod[0].is_zero && !prod[0].is_inf && !prod[0].is_nan && !prod[0].p_sign && prod[0].p != 0);
+    c_finite_neg: cover (!prod[0].is_zero && !prod[0].is_inf && !prod[0].is_nan &&  prod[0].p_sign && prod[0].p != 0);
+    c_zero:       cover (prod[0].is_zero);
+    c_special:    cover (prod[0].is_inf || prod[0].is_nan);
+  end
+endmodule
+
+bind align_bf16 align_bf16_sva u_sva (.prod(prod), .wide(wide));
+`endif

@@ -1,0 +1,7 @@
+`ifndef BIND_FRONT_END_NVFP4_SVA
+`define BIND_FRONT_END_NVFP4_SVA
+bind front_end_nvfp4 front_end_nvfp4_sva u_sva (
+  .x(x),
+  .d(d)
+);
+`endif

@@ -1,0 +1,94 @@
+`ifndef DOTPROD_BF16_SVA
+`define DOTPROD_BF16_SVA
+import dotprod_pkg::*;
+
+// BF16 top assume-guarantee proof, bound to dotprod_top.
+//
+// AG structure (composed across four standalone proofs so the top miter carries
+// only the pieces that are cheap for the engine):
+//   1. Lane proof  (Task 2):    mul_lane_bf16    == ref_mul_bf16.
+//   2. Align proof (Task 7 al):  align_bf16 lane  == ref_align_bf16_lane.
+//   3. Rounder     (Task 7 rd):  final_round_bf16 == ref_round / bypass.
+//   4. THIS proof (mul_lane_bf16 blackboxed, products assumed = ref_mul_bf16):
+//        a_acc_is_lane_sum : sum_bf16 == sum_i wide_bf16[i]   (acc-tree linearity)
+//        a_special_*       : special_* == golden pre-round special outcome
+//
+// Why this converges where earlier variants went inconclusive:
+//   - The acc assertion relates the acc-tree OUTPUT to the acc-tree INPUTS
+//     (the DUT's own aligned lanes). The barrel shifter feeds both sides
+//     identically, so it cancels structurally instead of being reconciled
+//     against a second (reference) shifter, which is what stalled the
+//     monolithic sum_bf16 == golden_acc miter.
+//   - The special ladder is boolean logic over the assumed products.
+//
+// Full result == dotprod_ref_bf16 follows by transitivity OUTSIDE the tool:
+//   sum_bf16 == sum wide_bf16                                    [a_acc_is_lane_sum]
+//            == sum ref_align_bf16_lane(prod_bf16[i])            [align proof]
+//            == sum ref_align_bf16_lane(ref_mul_bf16(a,b))       [lane proof]
+//            == golden acc                                       [golden def]
+//   result   == final_round_bf16(sum_bf16, special_*)           [DUT]
+//            == ref_round(golden acc) or special_result         [rounder proof + above]
+//            == dotprod_ref_bf16(a,b).
+//
+// Combinational DUV: immediate assertions under clock/reset none.
+module dotprod_bf16_sva (
+  input fmt_e                     mode,
+  input logic [BF16_W-1:0]        a [N_LANES],
+  input logic [BF16_W-1:0]        b [N_LANES],
+  input bf16_product_t            prod_bf16 [N_LANES],
+  input logic signed [ACC_BF16_W-1:0] wide_bf16 [N_LANES],
+  input logic signed [ACC_BF16_W-1:0] sum_bf16,
+  input logic                     special_valid,
+  input logic [FP32_W-1:0]        special_result,
+  input dotprod_status_t          special_status
+);
+  bf16_preround_t ref_pr;
+  logic signed [ACC_BF16_W-1:0] lane_sum;
+
+  function automatic logic bf16_operand_in_m3_window(input logic [BF16_W-1:0] x);
+    logic [7:0] exp;
+    exp = x[14:7];
+    bf16_operand_in_m3_window =
+        (exp == 8'h00) || (exp == 8'hFF) ||
+        (exp >= BF16_EXP_LO[7:0] && exp <= BF16_EXP_HI[7:0]);
+  endfunction
+
+  // Per-lane environment: operands in the M3 window, each blackboxed lane output
+  // equals its golden product (lane guarantee, discharged by the lane proof).
+  for (genvar gi = 0; gi < N_LANES; gi++) begin : g_lane_asm
+    always_comb begin
+      am_a_window: assume (bf16_operand_in_m3_window(a[gi]));
+      am_b_window: assume (bf16_operand_in_m3_window(b[gi]));
+      am_lane_ref: assume (prod_bf16[gi] == ref_mul_bf16(a[gi], b[gi]));
+    end
+  end
+
+  always_comb begin
+    ref_pr = dotprod_ref_bf16_preround(a, b);
+
+    // Sum of the DUT's own aligned lanes (identical shifter to sum_bf16's inputs).
+    lane_sum = '0;
+    for (int i = 0; i < N_LANES; i++)
+      lane_sum = lane_sum + wide_bf16[i];
+
+    am_bf16_mode: assume (mode == FMT_BF16);
+
+    // Acc-tree linearity: the reduction output is the exact sum of its inputs.
+    a_acc_is_lane_sum:            assert (sum_bf16 == lane_sum);
+
+    // Special ladder equivalence (boolean logic over the assumed products).
+    a_special_valid_matches_ref:  assert (special_valid  == ref_pr.special_valid);
+    a_special_result_matches_ref: assert (special_result == ref_pr.special_result);
+    a_special_status_matches_ref: assert (special_status == ref_pr.special_status);
+
+    c_numeric:  cover (!ref_pr.special_valid);
+    c_special:  cover (ref_pr.special_valid);
+    c_nan:      cover (ref_pr.special_status.is_nan);
+    c_pos_inf:  cover (ref_pr.special_status.is_inf && ref_pr.special_result == 32'h7F80_0000);
+    c_neg_inf:  cover (ref_pr.special_status.is_inf && ref_pr.special_result == 32'hFF80_0000);
+    c_invalid:  cover (ref_pr.special_status.invalid);
+    c_acc_neg:  cover (!ref_pr.special_valid && sum_bf16 < 0);
+    c_acc_pos:  cover (!ref_pr.special_valid && sum_bf16 > 0);
+  end
+endmodule
+`endif

@@ -1,0 +1,113 @@
+`ifndef MUL_LANE_BF16_SVA
+`define MUL_LANE_BF16_SVA
+import dotprod_pkg::*;
+
+module mul_lane_bf16_sva (
+  input logic [BF16_W-1:0] a,
+  input logic [BF16_W-1:0] b,
+  input bf16_product_t     product
+);
+  bf16_product_t ref_product;
+
+  function automatic logic [7:0] bf16_exp(input logic [BF16_W-1:0] x);
+    bf16_exp = x[14:7];
+  endfunction
+
+  function automatic logic [6:0] bf16_mant(input logic [BF16_W-1:0] x);
+    bf16_mant = x[6:0];
+  endfunction
+
+  function automatic logic bf16_is_zero_ftz(input logic [BF16_W-1:0] x);
+    bf16_is_zero_ftz = (bf16_exp(x) == 8'h00);
+  endfunction
+
+  function automatic logic bf16_is_inf(input logic [BF16_W-1:0] x);
+    bf16_is_inf = (bf16_exp(x) == 8'hFF) && (bf16_mant(x) == 7'h00);
+  endfunction
+
+  function automatic logic bf16_is_nan(input logic [BF16_W-1:0] x);
+    bf16_is_nan = (bf16_exp(x) == 8'hFF) && (bf16_mant(x) != 7'h00);
+  endfunction
+
+  function automatic logic bf16_is_normal(input logic [BF16_W-1:0] x);
+    bf16_is_normal = (bf16_exp(x) != 8'h00) && (bf16_exp(x) != 8'hFF);
+  endfunction
+
+  function automatic logic signed [9:0] bf16_q(input logic [BF16_W-1:0] x);
+    bf16_q = 10'(int'(bf16_exp(x)) - 134);
+  endfunction
+
+  function automatic logic bf16_operand_in_m3_window(input logic [BF16_W-1:0] x);
+    logic [7:0] exp;
+    exp = x[14:7];
+    bf16_operand_in_m3_window =
+        (exp == 8'h00) || (exp == 8'hFF) ||
+        (exp >= BF16_EXP_LO[7:0] && exp <= BF16_EXP_HI[7:0]);
+  endfunction
+
+  always_comb begin
+    ref_product = ref_mul_bf16(a, b);
+
+    am_a_window: assume (bf16_operand_in_m3_window(a));
+    am_b_window: assume (bf16_operand_in_m3_window(b));
+
+    a_product_matches_ref: assert (product == ref_product);
+
+    a_product_flags_exclusive: assert (
+        !(product.is_nan && product.is_inf) &&
+        !(product.is_nan && product.is_zero) &&
+        !(product.is_inf && product.is_zero));
+
+    a_invalid_only_on_nan_product: assert (!product.invalid || product.is_nan);
+
+    a_special_products_have_zero_numeric_payload: assert (
+        !(product.is_nan || product.is_inf || product.is_zero) ||
+        (product.p == '0 && product.q == '0));
+
+    a_nan_operand_forces_invalid_nan: assert (
+        !(bf16_is_nan(a) || bf16_is_nan(b)) ||
+        (product.is_nan && product.invalid &&
+         !product.is_inf && !product.is_zero &&
+         product.p_sign == (a[15] ^ b[15])));
+
+    a_zero_times_inf_is_invalid_nan: assert (
+        !((bf16_is_zero_ftz(a) && bf16_is_inf(b)) ||
+          (bf16_is_inf(a) && bf16_is_zero_ftz(b))) ||
+        (product.is_nan && product.invalid &&
+         !product.is_inf && !product.is_zero &&
+         product.p_sign == (a[15] ^ b[15])));
+
+    a_inf_product_rule: assert (
+        !(!bf16_is_nan(a) && !bf16_is_nan(b) &&
+          !((bf16_is_zero_ftz(a) && bf16_is_inf(b)) ||
+            (bf16_is_inf(a) && bf16_is_zero_ftz(b))) &&
+          (bf16_is_inf(a) || bf16_is_inf(b))) ||
+        (product.is_inf && !product.invalid &&
+         !product.is_nan && !product.is_zero &&
+         product.p_sign == (a[15] ^ b[15])));
+
+    a_zero_product_rule: assert (
+        !(!bf16_is_nan(a) && !bf16_is_nan(b) &&
+          !bf16_is_inf(a) && !bf16_is_inf(b) &&
+          (bf16_is_zero_ftz(a) || bf16_is_zero_ftz(b))) ||
+        (product.is_zero && !product.invalid &&
+         !product.is_nan && !product.is_inf &&
+         product.p_sign == (a[15] ^ b[15])));
+
+    a_finite_product_fields: assert (
+        !(bf16_is_normal(a) && bf16_is_normal(b)) ||
+        (!product.is_nan && !product.is_inf && !product.is_zero &&
+         !product.invalid &&
+         product.p_sign == (a[15] ^ b[15]) &&
+         product.p == ({1'b1, bf16_mant(a)} * {1'b1, bf16_mant(b)}) &&
+         product.q == (bf16_q(a) + bf16_q(b))));
+
+    c_numeric:   cover (!product.is_nan && !product.is_inf && !product.is_zero);
+    c_nan:       cover (product.is_nan);
+    c_pos_inf:   cover (product.is_inf && !product.p_sign);
+    c_neg_inf:   cover (product.is_inf && product.p_sign);
+    c_invalid:   cover (product.invalid);
+    c_ftz_zero:  cover ((a[14:7] == 8'h00 && a[6:0] != 7'h00) && product.is_zero);
+  end
+endmodule
+`endif

@@ -1,0 +1,44 @@
+`ifndef SCALE_MUL_NVFP4_SVA
+`define SCALE_MUL_NVFP4_SVA
+import dotprod_pkg::*;
+
+module scale_mul_nvfp4_sva (
+  input logic [7:0]           sa,
+  input logic [7:0]           sb,
+  input logic [7:0]           scale_sig,
+  input logic signed [6:0]    scale_exp,
+  input logic                 scale_is_nan
+);
+  ue4m3_dec_t da, db;
+
+  always_comb begin
+    da = ref_decode_ue4m3(sa);
+    db = ref_decode_ue4m3(sb);
+
+    // NaN flag: set iff either scale is NaN.
+    a_nan: assert (scale_is_nan == (da.is_nan || db.is_nan));
+
+    // Significand product: guarded by !scale_is_nan (don't-care when NaN).
+    a_sig: assert (scale_is_nan || (scale_sig == (8'(da.sig) * 8'(db.sig))));
+
+    // Exponent sum: guarded by !scale_is_nan.
+    a_exp: assert (scale_is_nan || (scale_exp == (da.k + db.k)));
+
+    // Cover: NaN output (either input is 0x7F).
+    c_nan: cover (scale_is_nan);
+
+    // Cover: zero scale (input 0x00 -> zero significand).
+    c_zero: cover (!scale_is_nan && (sa == 8'h00 || sb == 8'h00));
+
+    // Cover: max scale (input 0x7E, largest non-NaN).
+    c_max: cover (!scale_is_nan && (sa == 8'h7E || sb == 8'h7E));
+
+    // Cover: subnormal input (exp==0, mant!=0, e.g. sa[6:3]==0 && sa[2:0]!=0).
+    c_subnormal: cover (!scale_is_nan && ((sa[6:3] == 4'd0 && sa[2:0] != 3'd0) ||
+                                          (sb[6:3] == 4'd0 && sb[2:0] != 3'd0)));
+
+    // Cover: both inputs are normal (exp != 0, not NaN).
+    c_normal: cover (!scale_is_nan && (sa[6:3] != 4'd0) && (sb[6:3] != 4'd0));
+  end
+endmodule
+`endif

@@ -1,0 +1,11 @@
+`ifndef BIND_FINAL_ROUND_NVFP4_SVA
+`define BIND_FINAL_ROUND_NVFP4_SVA
+bind final_round_nvfp4 final_round_nvfp4_sva u_sva (
+  .inner_sum   (inner_sum),
+  .scale_sig   (scale_sig),
+  .scale_exp   (scale_exp),
+  .scale_is_nan(scale_is_nan),
+  .result      (result),
+  .status      (status)
+);
+`endif

@@ -1,0 +1,4 @@
++incdir+../../ref
+../../rtl/dotprod_pkg.sv
+../../rtl/special_case_bf16.sv
+../RTL/dotprod_bf16_special_sva.sva

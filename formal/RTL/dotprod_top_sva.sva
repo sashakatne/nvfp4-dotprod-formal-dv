@@ -1,0 +1,45 @@
+`ifndef DOTPROD_TOP_SVA
+`define DOTPROD_TOP_SVA
+import dotprod_pkg::*;
+// INT8 equivalence proof for the unified top. Operand ports are now 16-bit;
+// the INT8 datapath consumes only the low byte, so the golden is evaluated on
+// the low bytes and the proof holds for every high-byte value.
+module dotprod_top_sva (
+  input fmt_e                     mode,
+  input logic [BF16_W-1:0]        a [N_LANES],
+  input logic [BF16_W-1:0]        b [N_LANES],
+  input logic [FP32_W-1:0]        result,
+  input dotprod_status_t          status,
+  input logic                     sat
+);
+  // Purely combinational DUV (no clock): use IMMEDIATE assertions/covers in
+  // always_comb, not concurrent (@clk) properties.
+  logic signed [INT8_W-1:0]      a8 [N_LANES], b8 [N_LANES];
+  logic signed [INT8_OUT_W-1:0]  ref_r;
+  logic                          ref_sat;
+
+  always_comb begin
+    for (int i = 0; i < N_LANES; i++) begin
+      a8[i] = a[i][INT8_W-1:0];
+      b8[i] = b[i][INT8_W-1:0];
+    end
+    ref_r = dotprod_ref(a8, b8, ref_sat);
+
+    // This proof constrains the DUV to INT8 mode.
+    am_int8_mode: assume (mode == FMT_INT8);
+
+    // Result bit-pattern equals the sign-extended INT8 golden; status carries
+    // only saturation, and sat aliases status.sat.
+    a_result_matches_ref: assert (
+        result == FP32_W'(ref_r) &&
+        status.sat == ref_sat &&
+        sat == ref_sat &&
+        !status.invalid && !status.is_nan && !status.is_inf);
+
+    // INT8 8-lane single-shot cannot saturate a 32-bit output: unreachable.
+    c_int8_sat_unreachable: cover (status.sat == 1'b1);
+    c_positive_result:      cover ($signed(result) > 0);
+    c_negative_result:      cover ($signed(result) < 0);
+  end
+endmodule
+`endif

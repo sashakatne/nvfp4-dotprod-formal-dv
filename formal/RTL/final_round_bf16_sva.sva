@@ -1,0 +1,56 @@
+`ifndef FINAL_ROUND_BF16_SVA
+`define FINAL_ROUND_BF16_SVA
+import dotprod_pkg::*;
+
+// Standalone proof of the BF16 final rounder against the golden
+// ref_round_bf16_acc_to_fp32. This isolates the nonlinear leading-one +
+// data-dependent-shift + RNE logic so it proves on its own; the top AG proof
+// then blackboxes this module and assumes the guarantee below.
+//
+// The full 56-bit sum space is large for a bit-level miter, so the environment
+// constrains |sum| to the in-window magnitude the accumulator can actually
+// produce (max 8 * (2^8-1)^2 * 2^30 < 2^50), which is also the only regime the
+// top proof ever exercises. Combinational DUV: immediate assertions.
+module final_round_bf16_sva (
+  input logic signed [ACC_BF16_W-1:0] sum,
+  input logic                         special_valid,
+  input logic [FP32_W-1:0]            special_result,
+  input dotprod_status_t              special_status,
+  input logic [FP32_W-1:0]            result,
+  input dotprod_status_t              status
+);
+  // Max in-window |contribution| per lane is (2^8-1)^2 << 30; 8 lanes bound the
+  // magnitude below 2^50. Constrain the free sum to that reachable band.
+  localparam logic signed [ACC_BF16_W-1:0] MAG_BOUND =
+      ACC_BF16_W'(8 * 255 * 255) <<< BF16_ACC_FRAC_BITS;
+
+  logic [FP32_W-1:0] ref_r;
+
+  always_comb begin
+    ref_r = ref_round_bf16_acc_to_fp32(sum);
+
+    am_sum_in_window: assume (sum <= MAG_BOUND && sum >= -MAG_BOUND);
+
+    // Numeric path: result equals the golden round, status is clear.
+    a_numeric_round: assert (
+        special_valid ||
+        (result == ref_r && status == '0));
+
+    // Special path: result and status pass through verbatim.
+    a_special_bypass: assert (
+        !special_valid ||
+        (result == special_result && status == special_status));
+
+    c_numeric_zero:   cover (!special_valid && sum == '0);
+    c_numeric_pos:    cover (!special_valid && sum > 0);
+    c_numeric_neg:    cover (!special_valid && sum < 0);
+    c_bypass:         cover (special_valid);
+  end
+endmodule
+
+bind final_round_bf16 final_round_bf16_sva u_sva (
+  .sum(sum), .special_valid(special_valid),
+  .special_result(special_result), .special_status(special_status),
+  .result(result), .status(status)
+);
+`endif

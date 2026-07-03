@@ -1,0 +1,78 @@
+`ifndef DOTPROD_BF16_SPECIAL_SVA
+`define DOTPROD_BF16_SPECIAL_SVA
+import dotprod_pkg::*;
+
+// Formal properties for the BF16 special-case resolver. Proven standalone in
+// FPV so the IEEE special ordering holds for every product combination, not
+// just the directed vectors. Purely combinational: immediate assertions in
+// always_comb under clock/reset none.
+module dotprod_bf16_special_sva (
+  input bf16_product_t     prod [N_LANES],
+  input logic              special_valid,
+  input logic [FP32_W-1:0] special_result,
+  input dotprod_status_t   special_status
+);
+  localparam logic [FP32_W-1:0] FP32_POS_INF = 32'h7F80_0000;
+  localparam logic [FP32_W-1:0] FP32_NEG_INF = 32'hFF80_0000;
+
+  logic any_nan;
+  logic saw_pos_inf;
+  logic saw_neg_inf;
+  logic any_special;
+
+  always_comb begin
+    any_nan     = 1'b0;
+    saw_pos_inf = 1'b0;
+    saw_neg_inf = 1'b0;
+    foreach (prod[i]) begin
+      if (prod[i].is_nan)      any_nan     = 1'b1;
+      else if (prod[i].is_inf) begin
+        if (prod[i].p_sign)    saw_neg_inf = 1'b1;
+        else                   saw_pos_inf = 1'b1;
+      end
+    end
+    any_special = any_nan || saw_pos_inf || saw_neg_inf;
+
+    // NaN (or Inf-minus-Inf) dominates -> canonical QNaN + invalid.
+    a_nan_dominates: assert (
+        !(any_nan || (saw_pos_inf && saw_neg_inf)) ||
+        (special_valid &&
+         special_result == FP32_QNAN &&
+         special_status.is_nan && special_status.invalid &&
+         !special_status.is_inf && !special_status.sat));
+
+    // Single-signed Inf -> that infinity, not invalid, not NaN.
+    a_single_inf: assert (
+        !(!any_nan && (saw_pos_inf ^ saw_neg_inf)) ||
+        (special_valid &&
+         special_result == (saw_neg_inf ? FP32_NEG_INF : FP32_POS_INF) &&
+         special_status.is_inf && !special_status.is_nan &&
+         !special_status.invalid && !special_status.sat));
+
+    // No special product -> defer to numeric datapath.
+    a_defer_when_finite: assert (
+        any_special || (!special_valid && special_status == '0));
+
+    // special_valid is exactly the presence of any special product.
+    a_valid_iff_special: assert (special_valid == any_special);
+
+    // Resolver never claims both NaN and Inf, and never saturates.
+    a_flags_sane: assert (
+        !(special_status.is_nan && special_status.is_inf) &&
+        !special_status.sat);
+
+    c_defer:   cover (!special_valid);
+    c_qnan:    cover (special_valid && special_status.is_nan);
+    c_pos_inf: cover (special_valid && special_status.is_inf && special_result == FP32_POS_INF);
+    c_neg_inf: cover (special_valid && special_status.is_inf && special_result == FP32_NEG_INF);
+    c_inf_minus_inf: cover (saw_pos_inf && saw_neg_inf);
+  end
+endmodule
+
+bind special_case_bf16 dotprod_bf16_special_sva u_sva (
+  .prod           (prod),
+  .special_valid  (special_valid),
+  .special_result (special_result),
+  .special_status (special_status)
+);
+`endif

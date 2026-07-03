@@ -1,0 +1,4 @@
++incdir+../../ref
+../../rtl/dotprod_pkg.sv
+../../rtl/final_round_bf16.sv
+../RTL/final_round_bf16_sva.sva

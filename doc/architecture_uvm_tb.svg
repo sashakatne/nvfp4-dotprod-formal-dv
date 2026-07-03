@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 550" width="900" height="550">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+    </marker>
+    <marker id="arrowhead-blue" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#1a5276" />
+    </marker>
+    <marker id="arrowhead-green" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#1d6a36" />
+    </marker>
+    <marker id="arrowhead-purple" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#6c3483" />
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="550" fill="#f4f6f7" rx="4" />
+
+  <!-- Title -->
+  <text x="450" y="26" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="#222" text-anchor="middle">M2 UVM Testbench Architecture</text>
+
+  <!-- ==================== DUT ==================== -->
+  <rect x="620" y="170" width="140" height="190" rx="8" fill="#d6dbdf" stroke="#566573" stroke-width="2" />
+  <text x="690" y="194" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#212f3c" text-anchor="middle">DUT</text>
+  <text x="690" y="210" font-family="Arial, sans-serif" font-size="11" fill="#444" text-anchor="middle">dotprod_seq</text>
+  <text x="690" y="232" font-family="Arial, sans-serif" font-size="9" fill="#666" text-anchor="middle">in_valid / in_ready</text>
+  <text x="690" y="246" font-family="Arial, sans-serif" font-size="9" fill="#666" text-anchor="middle">a[8], b[8], mode</text>
+  <text x="690" y="268" font-family="Arial, sans-serif" font-size="9" fill="#666" text-anchor="middle">out_valid / out_ready</text>
+  <text x="690" y="282" font-family="Arial, sans-serif" font-size="9" fill="#666" text-anchor="middle">result[32], sat</text>
+  <text x="690" y="304" font-family="Arial, sans-serif" font-size="9" fill="#888" text-anchor="middle">2-stage pipeline</text>
+  <text x="690" y="318" font-family="Arial, sans-serif" font-size="9" fill="#888" text-anchor="middle">global stall</text>
+
+  <!-- ==================== in_agent box ==================== -->
+  <rect x="20" y="60" width="360" height="210" rx="8" fill="#d6eaf8" stroke="#2980b9" stroke-width="2" />
+  <text x="200" y="84" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#1a5276" text-anchor="middle">dotprod_in_agent</text>
+
+  <!-- sequencer -->
+  <rect x="34" y="96" width="100" height="50" rx="5" fill="#aed6f1" stroke="#2471a3" stroke-width="1.5" />
+  <text x="84" y="116" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#1a5276" text-anchor="middle">Sequencer</text>
+  <text x="84" y="130" font-family="Arial, sans-serif" font-size="9" fill="#444" text-anchor="middle">dotprod_seq</text>
+  <text x="84" y="142" font-family="Arial, sans-serif" font-size="9" fill="#666" text-anchor="middle">items</text>
+
+  <!-- arrow: seqr -> in_driver -->
+  <line x1="134" y1="121" x2="158" y2="121" stroke="#1a5276" stroke-width="1.5" marker-end="url(#arrowhead-blue)" />
+
+  <!-- in_driver -->
+  <rect x="158" y="96" width="100" height="50" rx="5" fill="#aed6f1" stroke="#2471a3" stroke-width="1.5" />
+  <text x="208" y="116" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#1a5276" text-anchor="middle">in_driver</text>
+  <text x="208" y="130" font-family="Arial, sans-serif" font-size="9" fill="#444" text-anchor="middle">drives a/b/mode</text>
+  <text x="208" y="142" font-family="Arial, sans-serif" font-size="9" fill="#666" text-anchor="middle">in_valid + gaps</text>
+
+  <!-- arrow: in_driver -> DUT (going right out of agent, then to DUT) -->
+  <line x1="258" y1="121" x2="617" y2="230" stroke="#2980b9" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowhead-blue)" />
+  <text x="440" y="162" font-family="Arial, sans-serif" font-size="9" fill="#1a5276" text-anchor="middle">in_valid/in_ready, a/b/mode</text>
+
+  <!-- in_monitor -->
+  <rect x="158" y="168" width="100" height="50" rx="5" fill="#aed6f1" stroke="#2471a3" stroke-width="1.5" />
+  <text x="208" y="188" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#1a5276" text-anchor="middle">in_monitor</text>
+  <text x="208" y="202" font-family="Arial, sans-serif" font-size="9" fill="#444" text-anchor="middle">samples</text>
+  <text x="208" y="216" font-family="Arial, sans-serif" font-size="9" fill="#666" text-anchor="middle">in_valid &amp;&amp; in_ready</text>
+
+  <!-- ap_in label and arrow going right from in_monitor -->
+  <line x1="258" y1="193" x2="290" y2="193" stroke="#1a5276" stroke-width="1.5" marker-end="url(#arrowhead-blue)" />
+  <text x="274" y="186" font-family="Arial, sans-serif" font-size="9" fill="#1a5276" text-anchor="middle">ap_in</text>
+
+  <!-- ==================== out_agent box ==================== -->
+  <rect x="20" y="310" width="360" height="180" rx="8" fill="#d5f5e3" stroke="#27ae60" stroke-width="2" />
+  <text x="200" y="334" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#1d6a36" text-anchor="middle">dotprod_out_agent</text>
+
+  <!-- out_driver -->
+  <rect x="34" y="348" width="100" height="50" rx="5" fill="#a9dfbf" stroke="#1e8449" stroke-width="1.5" />
+  <text x="84" y="368" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#1d6a36" text-anchor="middle">out_driver</text>
+  <text x="84" y="382" font-family="Arial, sans-serif" font-size="9" fill="#444" text-anchor="middle">drives out_ready</text>
+  <text x="84" y="394" font-family="Arial, sans-serif" font-size="9" fill="#666" text-anchor="middle">backpressure</text>
+
+  <!-- arrow: out_driver -> DUT -->
+  <line x1="134" y1="373" x2="617" y2="310" stroke="#27ae60" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowhead-green)" />
+  <text x="390" y="370" font-family="Arial, sans-serif" font-size="9" fill="#1d6a36" text-anchor="middle">out_ready</text>
+
+  <!-- out_monitor -->
+  <rect x="158" y="348" width="100" height="50" rx="5" fill="#a9dfbf" stroke="#1e8449" stroke-width="1.5" />
+  <text x="208" y="368" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#1d6a36" text-anchor="middle">out_monitor</text>
+  <text x="208" y="382" font-family="Arial, sans-serif" font-size="9" fill="#444" text-anchor="middle">samples</text>
+  <text x="208" y="396" font-family="Arial, sans-serif" font-size="9" fill="#666" text-anchor="middle">out_valid &amp;&amp; out_ready</text>
+
+  <!-- ap_out label and arrow going right from out_monitor -->
+  <line x1="258" y1="373" x2="290" y2="373" stroke="#1d6a36" stroke-width="1.5" marker-end="url(#arrowhead-green)" />
+  <text x="274" y="366" font-family="Arial, sans-serif" font-size="9" fill="#1d6a36" text-anchor="middle">ap_out</text>
+
+  <!-- ==================== Scoreboard ==================== -->
+  <rect x="290" y="160" width="200" height="160" rx="8" fill="#fdebd0" stroke="#e67e22" stroke-width="2" />
+  <text x="390" y="184" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#784212" text-anchor="middle">Scoreboard</text>
+
+  <!-- write_in -->
+  <rect x="304" y="198" width="80" height="44" rx="4" fill="#fad7a0" stroke="#e67e22" stroke-width="1" />
+  <text x="344" y="216" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="#784212" text-anchor="middle">write_in</text>
+  <text x="344" y="229" font-family="Arial, sans-serif" font-size="8" fill="#666" text-anchor="middle">predict via</text>
+  <text x="344" y="239" font-family="Arial, sans-serif" font-size="8" fill="#666" text-anchor="middle">dotprod_ref</text>
+
+  <!-- write_out -->
+  <rect x="304" y="256" width="80" height="44" rx="4" fill="#fad7a0" stroke="#e67e22" stroke-width="1" />
+  <text x="344" y="274" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="#784212" text-anchor="middle">write_out</text>
+  <text x="344" y="287" font-family="Arial, sans-serif" font-size="8" fill="#666" text-anchor="middle">pop exp_q</text>
+  <text x="344" y="297" font-family="Arial, sans-serif" font-size="8" fill="#666" text-anchor="middle">compare result</text>
+
+  <!-- dotprod_ref label beside write_in -->
+  <rect x="396" y="206" width="82" height="28" rx="4" fill="#f9e79f" stroke="#d4ac0d" stroke-width="1" />
+  <text x="437" y="220" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="#7d6608" text-anchor="middle">dotprod_ref</text>
+  <text x="437" y="230" font-family="Arial, sans-serif" font-size="8" fill="#888" text-anchor="middle">golden model</text>
+
+  <!-- ==================== Coverage ==================== -->
+  <rect x="290" y="360" width="200" height="120" rx="8" fill="#e8daef" stroke="#8e44ad" stroke-width="2" />
+  <text x="390" y="384" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#6c3483" text-anchor="middle">Coverage</text>
+
+  <!-- cg_value -->
+  <rect x="304" y="396" width="80" height="36" rx="4" fill="#d7bde2" stroke="#8e44ad" stroke-width="1" />
+  <text x="344" y="412" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="#6c3483" text-anchor="middle">cg_value</text>
+  <text x="344" y="425" font-family="Arial, sans-serif" font-size="8" fill="#666" text-anchor="middle">per-lane values + cross</text>
+
+  <!-- cg_proto -->
+  <rect x="304" y="440" width="80" height="30" rx="4" fill="#d7bde2" stroke="#8e44ad" stroke-width="1" />
+  <text x="344" y="456" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="#6c3483" text-anchor="middle">cg_proto</text>
+  <text x="344" y="467" font-family="Arial, sans-serif" font-size="8" fill="#666" text-anchor="middle">protocol states</text>
+
+  <!-- ==================== Analysis port connections ==================== -->
+  <!-- ap_in -> scoreboard write_in (horizontal from monitor output) -->
+  <line x1="290" y1="193" x2="290" y2="220" stroke="#1a5276" stroke-width="1.5" />
+  <line x1="290" y1="220" x2="304" y2="220" stroke="#1a5276" stroke-width="1.5" marker-end="url(#arrowhead-blue)" />
+
+  <!-- ap_in fork -> coverage (going down from junction) -->
+  <line x1="290" y1="220" x2="290" y2="414" stroke="#1a5276" stroke-width="1.5" />
+  <line x1="290" y1="414" x2="304" y2="414" stroke="#1a5276" stroke-width="1.5" marker-end="url(#arrowhead-blue)" />
+  <text x="282" y="320" font-family="Arial, sans-serif" font-size="9" fill="#1a5276" text-anchor="middle" transform="rotate(-90, 282, 320)">ap_in</text>
+
+  <!-- ap_out -> scoreboard write_out -->
+  <line x1="290" y1="373" x2="304" y2="278" stroke="#1d6a36" stroke-width="1.5" marker-end="url(#arrowhead-green)" />
+  <text x="296" y="340" font-family="Arial, sans-serif" font-size="9" fill="#1d6a36" text-anchor="middle" transform="rotate(-80, 296, 340)">ap_out</text>
+
+  <!-- DUT -> out_monitor (dotted line showing monitoring) -->
+  <line x1="620" y1="350" x2="258" y2="373" stroke="#888" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrowhead)" />
+  <text x="445" y="347" font-family="Arial, sans-serif" font-size="8" fill="#888" text-anchor="middle">out_valid/out_ready, result/sat</text>
+
+  <!-- DUT -> in_monitor (dotted line showing monitoring) -->
+  <line x1="620" y1="220" x2="258" y2="198" stroke="#888" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrowhead)" />
+
+  <!-- ==================== Legend ==================== -->
+  <rect x="620" y="400" width="260" height="130" rx="6" fill="white" stroke="#ccc" stroke-width="1" />
+  <text x="750" y="420" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333" text-anchor="middle">Legend</text>
+
+  <rect x="634" y="430" width="14" height="12" rx="2" fill="#d6eaf8" stroke="#2980b9" stroke-width="1" />
+  <text x="654" y="441" font-family="Arial, sans-serif" font-size="9" fill="#333">Input Agent</text>
+
+  <rect x="634" y="450" width="14" height="12" rx="2" fill="#d5f5e3" stroke="#27ae60" stroke-width="1" />
+  <text x="654" y="461" font-family="Arial, sans-serif" font-size="9" fill="#333">Output Agent</text>
+
+  <rect x="634" y="470" width="14" height="12" rx="2" fill="#fdebd0" stroke="#e67e22" stroke-width="1" />
+  <text x="654" y="481" font-family="Arial, sans-serif" font-size="9" fill="#333">Scoreboard</text>
+
+  <rect x="634" y="490" width="14" height="12" rx="2" fill="#e8daef" stroke="#8e44ad" stroke-width="1" />
+  <text x="654" y="501" font-family="Arial, sans-serif" font-size="9" fill="#333">Coverage</text>
+
+  <rect x="634" y="510" width="14" height="12" rx="2" fill="#d6dbdf" stroke="#566573" stroke-width="1" />
+  <text x="654" y="521" font-family="Arial, sans-serif" font-size="9" fill="#333">DUT (dotprod_seq)</text>
+
+  <line x1="745" y1="436" x2="759" y2="436" stroke="#333" stroke-width="1.5" stroke-dasharray="4,2" />
+  <text x="764" y="440" font-family="Arial, sans-serif" font-size="9" fill="#333">Monitor/drive</text>
+
+  <line x1="745" y1="456" x2="759" y2="456" stroke="#1a5276" stroke-width="1.5" />
+  <text x="764" y="460" font-family="Arial, sans-serif" font-size="9" fill="#333">Analysis port (ap_in)</text>
+
+  <line x1="745" y1="476" x2="759" y2="476" stroke="#1d6a36" stroke-width="1.5" />
+  <text x="764" y="480" font-family="Arial, sans-serif" font-size="9" fill="#333">Analysis port (ap_out)</text>
+</svg>

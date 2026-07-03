@@ -1,0 +1,15 @@
+`ifndef BIND_DOTPROD_BF16_SVA
+`define BIND_DOTPROD_BF16_SVA
+// Bind the BF16 AG proof to dotprod_top. prod_bf16, wide_bf16, sum_bf16, and the
+// special_* nets are internal nets of dotprod_top; bind port maps may reference
+// them. mul_lane_bf16 is blackboxed by the run script, making prod_bf16 free.
+bind dotprod_top dotprod_bf16_sva u_bf16_sva (
+  .mode(mode), .a(a), .b(b),
+  .prod_bf16(prod_bf16),
+  .wide_bf16(wide_bf16),
+  .sum_bf16(sum_bf16),
+  .special_valid(special_valid),
+  .special_result(special_result),
+  .special_status(special_status)
+);
+`endif

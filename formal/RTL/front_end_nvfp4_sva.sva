@@ -1,0 +1,37 @@
+`ifndef FRONT_END_NVFP4_SVA
+`define FRONT_END_NVFP4_SVA
+import dotprod_pkg::*;
+
+module front_end_nvfp4_sva (
+  input logic [3:0]    x,
+  input e2m1_decoded_t d
+);
+  always_comb begin
+    // Primary correctness assertion: RTL must match the golden decode exactly.
+    a_decode_matches_ref: assert (d == ref_decode_e2m1(x));
+
+    // Sign bit must track x[3] directly.
+    a_decode_sign: assert (d.sign == x[3]);
+
+    // Cover each of the 8 magnitude classes (both signs for class 0 are
+    // degenerate - magnitude is zero regardless of sign - but cover both
+    // sign values to confirm sign pass-through).
+    c_mag_0_pos:  cover (x[3] == 1'b0 && x[2:0] == 3'b000);  // +0.0
+    c_mag_0_neg:  cover (x[3] == 1'b1 && x[2:0] == 3'b000);  // -0.0
+    c_mag_1_pos:  cover (x[3] == 1'b0 && x[2:0] == 3'b001);  // +0.5
+    c_mag_1_neg:  cover (x[3] == 1'b1 && x[2:0] == 3'b001);  // -0.5
+    c_mag_2_pos:  cover (x[3] == 1'b0 && x[2:0] == 3'b010);  // +1.0
+    c_mag_2_neg:  cover (x[3] == 1'b1 && x[2:0] == 3'b010);  // -1.0
+    c_mag_3_pos:  cover (x[3] == 1'b0 && x[2:0] == 3'b011);  // +1.5
+    c_mag_3_neg:  cover (x[3] == 1'b1 && x[2:0] == 3'b011);  // -1.5
+    c_mag_4_pos:  cover (x[3] == 1'b0 && x[2:0] == 3'b100);  // +2.0
+    c_mag_4_neg:  cover (x[3] == 1'b1 && x[2:0] == 3'b100);  // -2.0
+    c_mag_6_pos:  cover (x[3] == 1'b0 && x[2:0] == 3'b101);  // +3.0
+    c_mag_6_neg:  cover (x[3] == 1'b1 && x[2:0] == 3'b101);  // -3.0
+    c_mag_8_pos:  cover (x[3] == 1'b0 && x[2:0] == 3'b110);  // +4.0
+    c_mag_8_neg:  cover (x[3] == 1'b1 && x[2:0] == 3'b110);  // -4.0
+    c_mag_12_pos: cover (x[3] == 1'b0 && x[2:0] == 3'b111);  // +6.0
+    c_mag_12_neg: cover (x[3] == 1'b1 && x[2:0] == 3'b111);  // -6.0
+  end
+endmodule
+`endif

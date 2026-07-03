@@ -1,0 +1,8 @@
+`ifndef BIND_MUL_LANE_BF16_SVA
+`define BIND_MUL_LANE_BF16_SVA
+bind mul_lane_bf16 mul_lane_bf16_sva u_sva (
+  .a(a),
+  .b(b),
+  .product(product)
+);
+`endif

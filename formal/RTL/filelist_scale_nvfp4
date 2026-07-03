@@ -1,0 +1,6 @@
++incdir+../../ref
++incdir+../../rtl
+../../rtl/dotprod_pkg.sv
+../../rtl/scale_mul_nvfp4.sv
+../RTL/scale_mul_nvfp4_sva.sva
+../RTL/bind_scale_mul_nvfp4_sva.sva

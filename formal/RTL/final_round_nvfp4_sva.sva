@@ -1,0 +1,43 @@
+`ifndef FINAL_ROUND_NVFP4_SVA
+`define FINAL_ROUND_NVFP4_SVA
+import dotprod_pkg::*;
+
+// Standalone proof of final_round_nvfp4 vs dotprod_ref_nvfp4_round. The module
+// never rounds (|M| < 2^19 => msb <= 18 < 23, shift always left/lossless), so
+// this is a normalize-and-encode equivalence; it proves on its own. Combinational
+// DUV: immediate assertions, boolean guards (no |-> in always_comb).
+module final_round_nvfp4_sva (
+  input logic signed [NVFP4_INNER_W-1:0] inner_sum,
+  input logic [7:0]                       scale_sig,
+  input logic signed [6:0]                scale_exp,
+  input logic                             scale_is_nan,
+  input logic [FP32_W-1:0]               result,
+  input dotprod_status_t                  status
+);
+  logic [FP32_W-1:0] ref_r;
+  logic ref_inv, ref_nan;
+
+  always_comb begin
+    ref_r = dotprod_ref_nvfp4_round(inner_sum, scale_sig, scale_exp,
+                                    scale_is_nan, ref_inv, ref_nan);
+
+    // Numeric path (scale not NaN): result equals golden encode, no nan/invalid,
+    // and the rounder never sets sat/is_inf for NVFP4.
+    a_numeric_round: assert (scale_is_nan ||
+        (result == ref_r && status.is_nan == 1'b0 && status.invalid == 1'b0 &&
+         status.sat == 1'b0 && status.is_inf == 1'b0));
+
+    // NaN path: canonical QNaN with invalid+is_nan asserted; sat and is_inf must
+    // remain 0 (RTL initializes status='0 and the NaN branch only sets invalid/is_nan).
+    a_nan_bypass: assert (!scale_is_nan ||
+        (result == FP32_QNAN && status.is_nan == 1'b1 && status.invalid == 1'b1 &&
+         status.sat == 1'b0 && status.is_inf == 1'b0));
+
+    c_numeric_zero: cover (!scale_is_nan && inner_sum == '0);
+    c_numeric_pos:  cover (!scale_is_nan && result[31] == 1'b0 && inner_sum != '0);
+    c_numeric_neg:  cover (!scale_is_nan && result[31] == 1'b1);
+    c_nan:          cover (scale_is_nan);
+    c_max_mag:      cover (!scale_is_nan && scale_sig == 8'd225); // 15*15, reachable
+  end
+endmodule
+`endif

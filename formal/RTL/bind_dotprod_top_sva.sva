@@ -1,0 +1,6 @@
+`ifndef BIND_DOTPROD_TOP_SVA
+`define BIND_DOTPROD_TOP_SVA
+bind dotprod_top dotprod_top_sva u_sva (
+  .mode(mode), .a(a), .b(b), .result(result), .status(status), .sat(sat)
+);
+`endif

@@ -1,0 +1,21 @@
+`ifndef BIND_DOTPROD_NVFP4_SVA
+`define BIND_DOTPROD_NVFP4_SVA
+// Bind the NVFP4 AG proof to dotprod_top. nvfp4_prod, nvfp4_wide,
+// nvfp4_inner_sum, nvfp4_scale_sig, nvfp4_scale_exp, nvfp4_scale_is_nan,
+// nv_ea, nv_eb, nv_sa, nv_sb are internal nets of dotprod_top exposed by
+// Task 6. mul_lane_nvfp4 is blackboxed by the run script, making
+// nvfp4_prod free (lane guarantee assumes prod == ref_mul_nvfp4).
+bind dotprod_top dotprod_nvfp4_sva u_nvfp4_sva (
+  .mode(mode), .a(a), .b(b),
+  .nvfp4_prod(nvfp4_prod),
+  .nvfp4_wide(nvfp4_wide),
+  .nvfp4_inner_sum(nvfp4_inner_sum),
+  .nvfp4_scale_sig(nvfp4_scale_sig),
+  .nvfp4_scale_exp(nvfp4_scale_exp),
+  .nvfp4_scale_is_nan(nvfp4_scale_is_nan),
+  .nv_ea(nv_ea),
+  .nv_eb(nv_eb),
+  .nv_sa(nv_sa),
+  .nv_sb(nv_sb)
+);
+`endif

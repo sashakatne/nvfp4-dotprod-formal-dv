@@ -1,0 +1,35 @@
+`ifndef MUL_LANE_NVFP4_SVA
+`define MUL_LANE_NVFP4_SVA
+import dotprod_pkg::*;
+
+module mul_lane_nvfp4_sva (
+  input logic [3:0]     a,
+  input logic [3:0]     b,
+  input nvfp4_product_t product
+);
+  nvfp4_product_t ref_product;
+
+  always_comb begin
+    ref_product = ref_mul_nvfp4(a, b);
+
+    // Primary correctness: exhaustive over all 16x16 = 256 input combinations.
+    a_product_matches_ref: assert (product == ref_product);
+
+    // Cover: zero product (either operand has magnitude 0).
+    c_zero_product: cover (product.prod == 9'sd0);
+
+    // Cover: positive product (same sign, both nonzero).
+    c_positive_product: cover (product.prod > 9'sd0);
+
+    // Cover: negative product (opposite signs, both nonzero).
+    c_negative_product: cover (product.prod < 9'sd0);
+
+    // Cover: maximum product magnitude 144 = 12*12 (both operands = +-6.0).
+    c_max_product: cover (product.prod == 9'sd144 || product.prod == -9'sd144);
+
+    // Cover: subnormal-like operand product (mag_int 1 = 0.5 * something,
+    // i.e., one operand has exponent field 2'b00 and mantissa bit set: x[2:0]==3'b001).
+    c_subnormal_operand: cover (a[2:0] == 3'b001 || b[2:0] == 3'b001);
+  end
+endmodule
+`endif

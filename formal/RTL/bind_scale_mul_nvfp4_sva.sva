@@ -1,0 +1,10 @@
+`ifndef BIND_SCALE_MUL_NVFP4_SVA
+`define BIND_SCALE_MUL_NVFP4_SVA
+bind scale_mul_nvfp4 scale_mul_nvfp4_sva u_sva (
+  .sa(sa),
+  .sb(sb),
+  .scale_sig(scale_sig),
+  .scale_exp(scale_exp),
+  .scale_is_nan(scale_is_nan)
+);
+`endif

@@ -1,0 +1,52 @@
+# Simulation artifacts
+*.wlf
+*.vstf
+*.vcd
+*.fst
+*.fsdb
+*.vpd
+transcript
+modelsim.ini
+work/
+*.ucdb
+vsim.wlf
+.Xil/
+sim/coverage/
+sim/transcripts/
+verif/sim/coverage/
+verif/sim/transcripts/
+
+# Formal artifacts
+fml_*/
+vcst_rtdb*/
+*.vdb
+*.vdb/
+*.fdb
+*.cmd
+*.daidir/
+csrc/
+simv
+simv*
+novas.*
+ucli.key
+*_learn_dir/
+DVEfiles/
+jgproject/
+formal/run/logs/
+
+# LaTeX / doc build
+*.aux
+*.log
+*.out
+
+# OS
+.DS_Store
+._*
+
+# Agent/tool scratch
+CLAUDE.md
+AGENTS.md
+.claude/
+.codex/
+.superpowers/
+docs/superpowers/

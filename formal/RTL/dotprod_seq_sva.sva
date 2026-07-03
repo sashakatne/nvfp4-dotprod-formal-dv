@@ -1,0 +1,34 @@
+`ifndef DOTPROD_SEQ_SVA
+`define DOTPROD_SEQ_SVA
+import dotprod_pkg::*;
+module dotprod_seq_sva (
+  input logic clk, rst_n,
+  input logic in_valid, in_ready, out_valid, out_ready,
+  input logic [FP32_W-1:0] result,
+  input dotprod_status_t   status,
+  input logic sat
+);
+  default clocking cb @(posedge clk); endclocking
+  default disable iff (!rst_n);
+
+  // P1: held output is stable under backpressure (result AND all status fields).
+  p_hold_stable: assert property
+    (out_valid && !out_ready |=>
+       out_valid && $stable(result) && $stable(status) && $stable(sat));
+
+  // P2: no spurious output the cycle reset releases
+  p_no_out_at_reset: assert property
+    ($rose(rst_n) |-> !out_valid);
+
+  // P3: stall implies not ready
+  p_stall_blocks_ready: assert property
+    (out_valid && !out_ready |-> !in_ready);
+
+  // sat must always mirror status.sat (compatibility alias)
+  p_sat_alias: assert property (sat == status.sat);
+
+  // reachability covers (vacuity guards)
+  c_backpressure: cover property (out_valid && !out_ready);
+  c_accept:       cover property (in_valid && in_ready);
+endmodule
+`endif

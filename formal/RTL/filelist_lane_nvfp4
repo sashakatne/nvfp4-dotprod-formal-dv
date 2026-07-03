@@ -1,0 +1,9 @@
++incdir+../../ref
++incdir+../../rtl
+../../rtl/dotprod_pkg.sv
+../../rtl/front_end_nvfp4.sv
+../../rtl/mul_lane_nvfp4.sv
+../RTL/front_end_nvfp4_sva.sva
+../RTL/bind_front_end_nvfp4_sva.sva
+../RTL/mul_lane_nvfp4_sva.sva
+../RTL/bind_mul_lane_nvfp4_sva.sva

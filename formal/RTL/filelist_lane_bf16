@@ -1,0 +1,8 @@
++incdir+../../ref
+../../rtl/dotprod_pkg.sv
+../../rtl/front_end_bf16.sv
+../../rtl/mul_lane_bf16.sv
+../RTL/front_end_bf16_sva.sva
+../RTL/bind_front_end_bf16_sva.sva
+../RTL/mul_lane_bf16_sva.sva
+../RTL/bind_mul_lane_bf16_sva.sva

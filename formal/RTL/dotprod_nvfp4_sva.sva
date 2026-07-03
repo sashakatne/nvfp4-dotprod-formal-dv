@@ -1,0 +1,87 @@
+`ifndef DOTPROD_NVFP4_SVA
+`define DOTPROD_NVFP4_SVA
+import dotprod_pkg::*;
+
+// NVFP4 top assume-guarantee proof, bound to dotprod_top.
+//
+// AG structure:
+//   1. Lane proof  (Task 2): mul_lane_nvfp4 == ref_mul_nvfp4.
+//   2. THIS proof (mul_lane_nvfp4 blackboxed, products assumed = ref_mul_nvfp4):
+//        am_lane_ref (per lane): nvfp4_prod[i] == ref_mul_nvfp4(nv_ea[i], nv_eb[i])
+//        a_align_lane (per lane): nvfp4_wide[i] == sign_ext(nvfp4_prod[i].prod)  (align correctness, pure DUT)
+//        a_inner_is_lane_sum : nvfp4_inner_sum == sum_i nvfp4_wide[i]             (acc-tree linearity, pure DUT)
+//        a_scale_sig_ref     : nvfp4_scale_sig == ref_pr.scale_sig
+//        a_scale_exp_ref     : nvfp4_scale_exp == ref_pr.scale_exp
+//        a_scale_nan_ref     : nvfp4_scale_is_nan == ref_pr.scale_is_nan
+//
+// Full result == dotprod_ref_nvfp4 follows by transitivity outside the tool:
+//   nvfp4_inner_sum == sum nvfp4_wide[i]                     [a_inner_is_lane_sum]
+//                   == sum sign_ext(nvfp4_prod[i].prod)       [a_align_lane]
+//                   == sum sign_ext(ref_mul_nvfp4(...).prod)  [am_lane_ref (lane proof)]
+//                   == golden inner_sum                       [golden def]
+//   plus scale asserts + standalone final_round_nvfp4 proof.
+//
+// Every assertion is a pure DUT-net comparison or a tiny scale-field check --
+// no 16x golden multiply elaboration in the miter, so each proves in ~1s.
+//
+// No exponent-window assumption: every 4-bit E2M1 pattern is valid (no
+// constrained-window analogous to M3 BF16). The lane guarantee assume is
+// stated using nv_ea/nv_eb which are bound as internal nets of dotprod_top.
+//
+// Combinational DUV: immediate assertions inside always_comb, no |-> / |=>.
+module dotprod_nvfp4_sva (
+  input fmt_e                           mode,
+  input logic [BF16_W-1:0]             a [N_LANES],
+  input logic [BF16_W-1:0]             b [N_LANES],
+  input nvfp4_product_t                 nvfp4_prod  [NVFP4_BLOCK],
+  input logic signed [NVFP4_INNER_W-1:0] nvfp4_wide [NVFP4_BLOCK],
+  input logic signed [NVFP4_INNER_W-1:0] nvfp4_inner_sum,
+  input logic [7:0]                    nvfp4_scale_sig,
+  input logic signed [6:0]             nvfp4_scale_exp,
+  input logic                          nvfp4_scale_is_nan,
+  input logic [3:0]                    nv_ea [NVFP4_BLOCK],
+  input logic [3:0]                    nv_eb [NVFP4_BLOCK],
+  input logic [7:0]                    nv_sa,
+  input logic [7:0]                    nv_sb
+);
+  nvfp4_preround_t ref_pr;
+  logic signed [NVFP4_INNER_W-1:0] lane_sum;
+
+  // Per-lane: assume product == golden (lane proof guarantee) and assert align == sign_ext(product).
+  // a_align_lane is a pure DUT-net comparison: nvfp4_wide[gi] is the aligned output of
+  // align_nvfp4, nvfp4_prod[gi].prod is the blackboxed (free) product -- no golden call in-cone.
+  for (genvar gi = 0; gi < NVFP4_BLOCK; gi++) begin : g_lane_asm
+    always_comb begin
+      am_lane_ref:   assume (nvfp4_prod[gi] == ref_mul_nvfp4(nv_ea[gi], nv_eb[gi]));
+      a_align_lane:  assert (nvfp4_wide[gi] == NVFP4_INNER_W'(nvfp4_prod[gi].prod));
+    end
+  end
+
+  always_comb begin
+    ref_pr = dotprod_ref_nvfp4_preround(a, b);
+
+    // Sum of the DUT's own aligned lanes (identical accumulator to nvfp4_inner_sum's inputs).
+    lane_sum = '0;
+    for (int i = 0; i < NVFP4_BLOCK; i++)
+      lane_sum = lane_sum + nvfp4_wide[i];
+
+    am_nvfp4_mode: assume (mode == FMT_NVFP4);
+
+    // Acc-tree linearity: the reduction output is the exact sum of its inputs (pure DUT).
+    a_inner_is_lane_sum: assert (nvfp4_inner_sum == lane_sum);
+
+    // Scale multiply outputs match golden (tiny boolean logic, proves in ~1s).
+    a_scale_sig_ref:     assert (nvfp4_scale_sig == ref_pr.scale_sig);
+    a_scale_exp_ref:     assert (nvfp4_scale_exp == ref_pr.scale_exp);
+    a_scale_nan_ref:     assert (nvfp4_scale_is_nan == ref_pr.scale_is_nan);
+
+    // Functional covers.
+    c_numeric:      cover (!ref_pr.scale_is_nan);
+    c_nan:          cover (ref_pr.scale_is_nan);
+    c_zero_scale:   cover (!ref_pr.scale_is_nan && ref_pr.scale_sig == 8'd0);
+    c_max_scale:    cover (!ref_pr.scale_is_nan && ref_pr.scale_sig == 8'hFF);
+    c_neg_inner:    cover (!ref_pr.scale_is_nan && ref_pr.inner_sum < 0);
+    c_pos_inner:    cover (!ref_pr.scale_is_nan && ref_pr.inner_sum > 0);
+  end
+endmodule
+`endif

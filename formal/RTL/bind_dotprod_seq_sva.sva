@@ -1,0 +1,9 @@
+`ifndef BIND_DOTPROD_SEQ_SVA
+`define BIND_DOTPROD_SEQ_SVA
+bind dotprod_seq dotprod_seq_sva u_sva (
+  .clk(clk), .rst_n(rst_n),
+  .in_valid(in_valid), .in_ready(in_ready),
+  .out_valid(out_valid), .out_ready(out_ready),
+  .result(result), .status(status), .sat(sat)
+);
+`endif

@@ -1,0 +1,6 @@
++incdir+../../rtl
++incdir+../../ref
+../../rtl/dotprod_pkg.sv
+../../rtl/final_round_nvfp4.sv
+../RTL/final_round_nvfp4_sva.sva
+../RTL/bind_final_round_nvfp4_sva.sva

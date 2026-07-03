@@ -1,0 +1,42 @@
+`ifndef FRONT_END_BF16_SVA
+`define FRONT_END_BF16_SVA
+import dotprod_pkg::*;
+
+module front_end_bf16_sva (
+  input logic [BF16_W-1:0] x,
+  input bf16_decoded_t     d
+);
+  logic [7:0] exp;
+  logic [6:0] mant;
+
+  always_comb begin
+    exp = x[14:7];
+    mant = x[6:0];
+
+    a_decode_preserves_sign: assert (d.sign == x[15]);
+
+    a_decode_flags_exclusive: assert (
+        !(d.is_zero && d.is_inf) &&
+        !(d.is_zero && d.is_nan) &&
+        !(d.is_inf && d.is_nan));
+
+    a_decode_zero_ftz: assert (
+        (exp != 8'h00) ||
+        (d.is_zero && !d.is_inf && !d.is_nan && d.sig == '0 && d.q == '0));
+
+    a_decode_inf: assert (
+        !(exp == 8'hFF && mant == 7'h00) ||
+        (d.is_inf && !d.is_zero && !d.is_nan && d.sig == '0 && d.q == '0));
+
+    a_decode_nan: assert (
+        !(exp == 8'hFF && mant != 7'h00) ||
+        (d.is_nan && !d.is_zero && !d.is_inf && d.sig == '0 && d.q == '0));
+
+    a_decode_normal: assert (
+        !(exp != 8'h00 && exp != 8'hFF) ||
+        (!d.is_zero && !d.is_inf && !d.is_nan &&
+         d.sig == {1'b1, mant} &&
+         d.q == 10'(int'(exp) - 134)));
+  end
+endmodule
+`endif
