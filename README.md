@@ -55,16 +55,16 @@ flowchart LR
 |------|---------------------|---------------------|--------|
 | INT8 | Exhaustive top equivalence against `dotprod_ref` | Directed smoke plus UVM random/corner tests | Proven |
 | Sequential wrapper | Protocol SVA for ready/valid and backpressure | UVM backpressure tests | Proven |
-| BF16 | Assume-guarantee decomposition across lane, align, round, and top | BF16 random/corner UVM tests | Proven |
+| BF16 | Assume-guarantee decomposition across lane, align, round, and top; proven over the full BF16 input space (out-of-window operands flagged invalid) | BF16 random/corner UVM tests | Proven |
 | NVFP4 | Pure-DUT-net assume-guarantee proof plus standalone scale/lane/round proofs | NVFP4 random/corner UVM tests | Proven |
 
 ## Verification Dashboard
 
-| Metric | Final M5 result |
+| Metric | Final result |
 |--------|-----------------|
-| Formal jobs | 18 total: 11 clean, 7 bug-injected |
-| Clean formal runs | All target assertions proven |
-| Bug-injected runs | Each mutation falsifies at least one intended assertion |
+| Formal jobs | 22 total: 11 clean, 11 bug-injected |
+| Clean formal runs | All target assertions proven (BF16 proven over the full input space) |
+| Bug-injected runs | Each mutation falsifies at least one intended assertion; each fault has its own dedicated define |
 | UVM tests | 7 tests, zero mismatches, zero leftovers |
 | Coverage | 100.00% reachable merged coverage |
 | Waivers | One structurally unreachable branch leg, documented in [`verif/sim/coverage_waivers.do`](verif/sim/coverage_waivers.do) |
@@ -237,7 +237,9 @@ behavior with SVA plus a reusable UVM environment.
 - Report: [`doc/FinalReport_M3.md`](doc/FinalReport_M3.md)
 
 M3 adds BF16 special-value handling, exact accumulation in a bounded exponent
-window, and a single final round to FP32.
+window [119,134], and a single final round to FP32. Operands outside that window
+are detected and flagged as an invalid operation (canonical QNaN), so the tier is
+formally proven over the full BF16 input space rather than only in-window.
 
 </details>
 

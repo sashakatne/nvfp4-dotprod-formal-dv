@@ -8,7 +8,7 @@
 
 **Toolchain:**
 - Synopsys VC Formal V-2023.12-SP2-3
-- Siemens Questa 2021.3_1
+- Siemens Questa 2024.2
 
 **Evidence:** Summary tables are preserved below. Raw logs and coverage reports are generated artifacts; only the waiver file is checked in.
 
@@ -194,6 +194,51 @@ vsim -c -do run.do
 ```
 
 Expected outcome: all 18 formal proof jobs report no falsified assertions in the clean variants and at least one falsified assertion in each bug-injected variant; all 7 UVM tests report `mismatched=0 leftover=0 UVM_ERROR=0 UVM_FATAL=0`; merged coverage reports 100.00%.
+
+---
+
+## 6b. Post-Review Hardening (pre-public)
+
+A full pre-public code review of all milestones drove a hardening pass. No
+critical bug was found in the shipped RTL, but several verification-strength and
+scope-honesty gaps were closed. All changes were re-verified on the farm
+(Synopsys VC Formal + Questa 2024.2).
+
+**BF16 full-range guard (design change).** The BF16 tier previously assumed
+operands lay in the `[119,134]` exponent window; a legal out-of-window operand
+(e.g. `256.0`) produced a silently-wrong result. `front_end_bf16` now raises an
+`is_oor` flag for out-of-window normals and `mul_lane_bf16` folds it into an
+invalid-operation QNaN via the existing special ladder. The golden reference
+mirrors this, so the BF16 lane and top proofs now drop the operand-window
+`assume` and prove equivalence over the **full** BF16 input space. A dedicated
+`BUG_OOR` mutation confirms the guard has formal teeth.
+
+**Formal matrix.** 22 jobs total: 11 clean (all proven; BF16 now full-range) and
+11 bug-injected (each falsifies its target). Each seeded fault now has its own
+dedicated `+define+` (`BUG_INT8_ROUND`, `BUG_FTZ`, `BUG_BF16_TRUNC`, `BUG_E2M1`,
+`BUG_SEQ_DROP`, `BUG_OOR`, plus the pre-existing `BUG_ALIGN`/`BUG_SPECIAL`/
+`BUG_NAN`/`BUG_SCALE`/`BUG_ROUND`), replacing the shared `BUG_INJECTION` define
+so each injected run activates exactly one mutation.
+
+**UVM / coverage.** Stimulus and coverage gaps were closed: the BF16 random
+sequence now reaches all 16 in-window exponents (was 6); the NVFP4 element pool
+now drives `-0.5` and `-1.5` (previously a mislabeled `0xD`); a mislabeled
+out-of-window `0x7F7F` corner was corrected to the true in-window `0x437F` and a
+genuine out-of-range corner was added; BF16 operand-pair and NVFP4 scale-pair
+crosses were added; the NVFP4 `-0` sign-mix classification and the
+result-class mode attribution (in-flight mode queue) were fixed; independent
+hand-computed anchors were added to the directed corners. Merged coverage is
+**100.00%** (206/206 covergroup bins; branches, expressions, statements 100%).
+
+| Test | Items | Matched | Mismatched | Leftover |
+|------|-------|---------|------------|----------|
+| `dotprod_random_test` (INT8) | 500 | 500 | 0 | 0 |
+| `dotprod_backpressure_test` (INT8) | 1000 | 1000 | 0 | 0 |
+| `dotprod_corner_test` (INT8) | 9 | 9 | 0 | 0 |
+| `dotprod_bf16_test` (BF16) | 500 | 500 | 0 | 0 |
+| `dotprod_bf16_corner_test` (BF16) | 10 | 10 | 0 | 0 |
+| `dotprod_nvfp4_test` (NVFP4) | 500 | 500 | 0 | 0 |
+| `dotprod_nvfp4_corner_test` (NVFP4) | 8 | 8 | 0 | 0 |
 
 ---
 

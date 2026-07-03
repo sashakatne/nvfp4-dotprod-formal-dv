@@ -45,11 +45,21 @@ Decode rules (`front_end_bf16`):
 
 ### 2.2 Constrained exponent window
 
-M3 constrains normal operands to stored exponent `E in [119, 134]`
+M3 defines a numeric window on normal operands: stored exponent `E in [119, 134]`
 (`q in [-15, 0]`). This bounds every lane product magnitude so the 8-lane sum
 is representable exactly in a fixed-point accumulator and cannot overflow the
-FP32 normal range. The window is the load-bearing assumption of the formal
-proofs and the constrained-random UVM stimulus.
+FP32 normal range.
+
+Operands outside the window are not silently mis-handled: `front_end_bf16`
+detects any normal operand with `E` outside `[119, 134]` and raises an
+out-of-range (`is_oor`) flag, and `mul_lane_bf16` folds that flag into an
+invalid-operation NaN via the existing special ladder (exactly like a NaN or
+`0*Inf` operand). A block containing any out-of-window operand therefore returns
+canonical QNaN with `invalid` and `is_nan` set, rather than an incorrect numeric
+result. Because the golden reference mirrors this detection, the BF16 formal
+proofs hold over the **full** BF16 input space with no operand-window
+assumption; the window now describes the numeric (non-QNaN) domain, not a
+proof precondition.
 
 Derived accumulator width: `ACC_BF16_W = 56` bits, with LSB weight `2^-30`
 (`BF16_ACC_FRAC_BITS = 30`). Product significands are 8x8 -> 16 bits; the

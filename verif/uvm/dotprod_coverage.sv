@@ -21,6 +21,16 @@ class dotprod_coverage extends uvm_subscriber#(dotprod_seq_item);
   covergroup cg_bf16_operand;
     cp_ca: coverpoint s_ca;
     cp_cb: coverpoint s_cb;
+    // Operand-pair cross distinguishes the invalid-path pairings (NaN x zero vs
+    // NaN x NaN vs Inf x Inf, etc.) that a marginal coverpoint collapses. The
+    // OP_OTHER (out-of-window) class is a directed-only, single-sided stimulus
+    // (one operand of the OOR corner); its correctness is covered by its marginal
+    // bin plus the formal out-of-range lane proof, so cross pairings involving it
+    // are ignored rather than left as unreachable holes.
+    x_ca_cb: cross cp_ca, cp_cb {
+      ignore_bins oor_pairs = binsof(cp_ca) intersect {OP_OTHER} ||
+                              binsof(cp_cb) intersect {OP_OTHER};
+    }
   endgroup
 
   // BF16 result-class coverage on observed output beats.
@@ -28,6 +38,15 @@ class dotprod_coverage extends uvm_subscriber#(dotprod_seq_item);
   bf16_resclass_e s_res;
   covergroup cg_bf16_result;
     cp_res: coverpoint s_res;
+  endgroup
+
+  // INT8 result-class coverage on observed output beats. Saturation is
+  // structurally unreachable for an 8-lane single-shot dot product (max sum
+  // 8*128*128 = 131072 fits in the 32-bit output), so IR_SAT is an illegal bin.
+  typedef enum { IR_ZERO, IR_POS, IR_NEG, IR_SAT } int8_resclass_e;
+  int8_resclass_e s_ires;
+  covergroup cg_int8_result;
+    cp_ires: coverpoint s_ires { illegal_bins never_sat = {IR_SAT}; }
   endgroup
 
   // NVFP4 element value-class and scale-class coverage.
@@ -44,17 +63,23 @@ class dotprod_coverage extends uvm_subscriber#(dotprod_seq_item);
   covergroup cg_nvfp4_scale;
     cp_scale:   coverpoint s_nsa;
     cp_scale_b: coverpoint s_nsb;
+    // Scale-pair cross: NaN_A x Normal_B vs NaN_A x NaN_B drive the
+    // scale_is_nan = na||nb logic differently. Both sides draw from the same
+    // curated pool, so all 5x5 pairings are reachable.
+    x_scale_ab: cross cp_scale, cp_scale_b;
   endgroup
   covergroup cg_nvfp4_block;
     cp_all_zero: coverpoint s_nv_all_zero_a { bins yes={1}; bins no={0}; }
     cp_sign_mix: coverpoint s_nv_sign_mix   { bins yes={1}; bins no={0}; }
   endgroup
 
-  // NVFP4 result-class coverage on observed output beats.
-  typedef enum { NR_ZERO, NR_NORMAL, NR_NAN } nvfp4_resclass_e;
+  // NVFP4 result-class coverage on observed output beats. NR_INF is a dedicated
+  // class: NVFP4 can never legitimately produce FP32 Inf, so a DUT that emits one
+  // surfaces as its own bin instead of hiding inside NR_NORMAL.
+  typedef enum { NR_ZERO, NR_NORMAL, NR_NAN, NR_INF } nvfp4_resclass_e;
   nvfp4_resclass_e s_nvres;
   covergroup cg_nvfp4_result;
-    cp_nvres: coverpoint s_nvres;
+    cp_nvres: coverpoint s_nvres { illegal_bins never_inf = {NR_INF}; }
   endgroup
 
   // Classify a 4-bit E2M1 nibble. Sign is bit[3]; mag encoded in bits[2:0].
@@ -79,11 +104,14 @@ class dotprod_coverage extends uvm_subscriber#(dotprod_seq_item);
     return NS_NORMAL;
   endfunction
 
-  // Classify an FP32 result bit-pattern for NVFP4 (no Inf possible).
+  // Classify an FP32 result bit-pattern for NVFP4. Inf (exp 0xFF, mant 0) gets
+  // its own class so an illegal Inf output is visible rather than folded into
+  // NR_NORMAL; the covergroup marks NR_INF as an illegal bin.
   local function automatic nvfp4_resclass_e classify_nvfp4_result(logic [FP32_W-1:0] r);
     logic [7:0] exp  = r[30:23];
     logic [22:0] mant = r[22:0];
     if (exp == 8'hFF && mant != 0)       return NR_NAN;
+    if (exp == 8'hFF && mant == 0)       return NR_INF;
     if (exp == 8'h00 && mant == 0)       return NR_ZERO;
     return NR_NORMAL;
   endfunction
@@ -91,15 +119,17 @@ class dotprod_coverage extends uvm_subscriber#(dotprod_seq_item);
   // protocol coverage sampled every clock
   bit iv, ir, ov, orr;
   covergroup cg_proto;
-    cp_in:  coverpoint {iv,ir} { bins accept={2'b11}; bins in_stall={2'b10}; bins idle={2'b00}; }
-    cp_out: coverpoint {ov,orr}{ bins drain={2'b11}; bins backpressure={2'b10}; bins no_out={2'b00}; }
+    cp_in:  coverpoint {iv,ir} { bins accept={2'b11}; bins in_stall={2'b10};
+                                 bins ready_idle={2'b01}; bins idle={2'b00}; }
+    cp_out: coverpoint {ov,orr}{ bins drain={2'b11}; bins backpressure={2'b10};
+                                 bins ready_no_out={2'b01}; bins no_out={2'b00}; }
   endgroup
 
   function new(string name, uvm_component parent);
     super.new(name,parent);
     cg_value=new(); cg_bf16_operand=new(); cg_bf16_result=new(); cg_proto=new();
     cg_nvfp4_element=new(); cg_nvfp4_scale=new(); cg_nvfp4_block=new();
-    cg_nvfp4_result=new();
+    cg_nvfp4_result=new(); cg_int8_result=new();
   endfunction
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
@@ -161,7 +191,9 @@ class dotprod_coverage extends uvm_subscriber#(dotprod_seq_item);
           cg_nvfp4_element.sample();
           if (ea[k] != 4'h0 && ea[k] != 4'h8) all_zero_a = 1'b0;
           if (ea[k][3] == 1'b0 && ea[k] != 4'h0) has_pos_a = 1'b1;
-          if (ea[k][3] == 1'b1)                   has_neg_a = 1'b1;
+          // -0 (0x8) is numerically zero: exclude it from the negative-sign set
+          // so a {+x, -0} block is not falsely reported as sign-mixed.
+          if (ea[k][3] == 1'b1 && ea[k] != 4'h8) has_neg_a = 1'b1;
         end
         s_nv_all_zero_a = all_zero_a;
         s_nv_sign_mix   = has_pos_a & has_neg_a;
@@ -170,6 +202,14 @@ class dotprod_coverage extends uvm_subscriber#(dotprod_seq_item);
     end
   endfunction
 
+  // In-flight mode queue: the result-class of an output beat belongs to the
+  // transaction that was ACCEPTED at the input (2-cycle pipeline latency), not to
+  // whatever mode the input side happens to present now. Push mode on each
+  // input-accept, pop on each output beat, and classify with the popped mode so
+  // result-class coverage is attributed to the correct transaction (correct even
+  // under interleaved-mode streams).
+  fmt_e mode_q[$];
+
   // protocol + result-class sampling every clock
   task run_phase(uvm_phase phase);
     forever begin
@@ -177,13 +217,23 @@ class dotprod_coverage extends uvm_subscriber#(dotprod_seq_item);
       iv=vif.mon_cb.in_valid; ir=vif.mon_cb.in_ready;
       ov=vif.mon_cb.out_valid; orr=vif.mon_cb.out_ready;
       cg_proto.sample();
+      if (iv === 1'b1 && ir === 1'b1)
+        mode_q.push_back(vif.mon_cb.mode);
       if (ov === 1'b1 && orr === 1'b1) begin
-        if (vif.mon_cb.mode == FMT_BF16) begin
+        fmt_e out_mode;
+        out_mode = (mode_q.size() > 0) ? mode_q.pop_front() : vif.mon_cb.mode;
+        if (out_mode == FMT_BF16) begin
           s_res = classify_result(vif.mon_cb.result);
           cg_bf16_result.sample();
-        end else if (vif.mon_cb.mode == FMT_NVFP4) begin
+        end else if (out_mode == FMT_NVFP4) begin
           s_nvres = classify_nvfp4_result(vif.mon_cb.result);
           cg_nvfp4_result.sample();
+        end else begin
+          // INT8: classify the signed 32-bit result (sat is unreachable).
+          if ($signed(vif.mon_cb.result) == 0)     s_ires = IR_ZERO;
+          else if ($signed(vif.mon_cb.result) > 0) s_ires = IR_POS;
+          else                                     s_ires = IR_NEG;
+          cg_int8_result.sample();
         end
       end
     end

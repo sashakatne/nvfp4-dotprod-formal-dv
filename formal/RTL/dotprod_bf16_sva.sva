@@ -45,20 +45,13 @@ module dotprod_bf16_sva (
   bf16_preround_t ref_pr;
   logic signed [ACC_BF16_W-1:0] lane_sum;
 
-  function automatic logic bf16_operand_in_m3_window(input logic [BF16_W-1:0] x);
-    logic [7:0] exp;
-    exp = x[14:7];
-    bf16_operand_in_m3_window =
-        (exp == 8'h00) || (exp == 8'hFF) ||
-        (exp >= BF16_EXP_LO[7:0] && exp <= BF16_EXP_HI[7:0]);
-  endfunction
-
-  // Per-lane environment: operands in the M3 window, each blackboxed lane output
-  // equals its golden product (lane guarantee, discharged by the lane proof).
+  // Per-lane environment: each blackboxed lane output equals its golden product
+  // (lane guarantee, discharged by the lane proof). No operand-window assumption
+  // is imposed: the front-end out-of-range guard folds out-of-window normals into
+  // invalid NaN products, so the golden and DUT agree over the FULL BF16 input
+  // space and the special ladder resolves OOR blocks to a canonical QNaN.
   for (genvar gi = 0; gi < N_LANES; gi++) begin : g_lane_asm
     always_comb begin
-      am_a_window: assume (bf16_operand_in_m3_window(a[gi]));
-      am_b_window: assume (bf16_operand_in_m3_window(b[gi]));
       am_lane_ref: assume (prod_bf16[gi] == ref_mul_bf16(a[gi], b[gi]));
     end
   end
@@ -89,6 +82,10 @@ module dotprod_bf16_sva (
     c_invalid:  cover (ref_pr.special_status.invalid);
     c_acc_neg:  cover (!ref_pr.special_valid && sum_bf16 < 0);
     c_acc_pos:  cover (!ref_pr.special_valid && sum_bf16 > 0);
+    // An out-of-window operand resolves the whole block to an invalid QNaN via
+    // the special ladder (proves the new full-range guard is exercised).
+    c_oor:      cover (ref_pr.special_valid && ref_pr.special_status.invalid &&
+                       (a[0][14:7] > BF16_EXP_HI[7:0] && a[0][14:7] != 8'hFF));
   end
 endmodule
 `endif

@@ -21,7 +21,7 @@ module front_end_nvfp4 (
       3'b100: d.mag_int = 4'd4;   // 2.0
       3'b101: d.mag_int = 4'd6;   // 3.0
       3'b110: d.mag_int = 4'd8;   // 4.0
-`ifdef BUG_INJECTION
+`ifdef BUG_E2M1
       3'b111: d.mag_int = 4'd8;   // BUG: 6.0 pattern mapped to 4 instead of 12
 `else
       3'b111: d.mag_int = 4'd12;  // 6.0

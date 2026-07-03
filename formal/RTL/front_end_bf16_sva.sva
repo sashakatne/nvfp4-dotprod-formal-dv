@@ -37,6 +37,16 @@ module front_end_bf16_sva (
         (!d.is_zero && !d.is_inf && !d.is_nan &&
          d.sig == {1'b1, mant} &&
          d.q == 10'(int'(exp) - 134)));
+
+    // Out-of-range flag is set exactly for normal operands with exponent outside
+    // the M3 window [119,134], and clear for every zero/inf/nan/in-window operand.
+    a_decode_oor: assert (
+        d.is_oor == ((exp != 8'h00) && (exp != 8'hFF) &&
+                     ((exp < BF16_EXP_LO[7:0]) || (exp > BF16_EXP_HI[7:0]))));
+
+    c_oor_low:  cover (d.is_oor && exp < BF16_EXP_LO[7:0]);
+    c_oor_high: cover (d.is_oor && exp > BF16_EXP_HI[7:0]);
+    c_inwindow: cover (!d.is_oor && exp != 8'h00 && exp != 8'hFF);
   end
 endmodule
 `endif

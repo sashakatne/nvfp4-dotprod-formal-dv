@@ -37,21 +37,32 @@ module mul_lane_bf16_sva (
     bf16_q = 10'(int'(bf16_exp(x)) - 134);
   endfunction
 
-  function automatic logic bf16_operand_in_m3_window(input logic [BF16_W-1:0] x);
+  // Out-of-range: a normal operand (exp != 0, != 0xFF) whose stored exponent is
+  // outside the M3 window [119,134]. The front-end guard flags these and the
+  // lane multiply folds them into an invalid-operation NaN, so the proof now
+  // covers the FULL BF16 input space with no window assumption.
+  function automatic logic bf16_is_oor(input logic [BF16_W-1:0] x);
     logic [7:0] exp;
     exp = x[14:7];
-    bf16_operand_in_m3_window =
-        (exp == 8'h00) || (exp == 8'hFF) ||
-        (exp >= BF16_EXP_LO[7:0] && exp <= BF16_EXP_HI[7:0]);
+    bf16_is_oor = (exp != 8'h00) && (exp != 8'hFF) &&
+                  ((exp < BF16_EXP_LO[7:0]) || (exp > BF16_EXP_HI[7:0]));
   endfunction
 
   always_comb begin
     ref_product = ref_mul_bf16(a, b);
 
-    am_a_window: assume (bf16_operand_in_m3_window(a));
-    am_b_window: assume (bf16_operand_in_m3_window(b));
-
+    // Full-range equivalence: the DUT lane product equals the golden for EVERY
+    // BF16 operand pair (in-window finite, special, and out-of-window). No
+    // operand-window assumption is imposed.
     a_product_matches_ref: assert (product == ref_product);
+
+    // Out-of-range operand forces an invalid QNaN product (mirrors the NaN and
+    // 0*Inf invalid rules), regardless of the other operand.
+    a_oor_forces_invalid_nan: assert (
+        !(bf16_is_oor(a) || bf16_is_oor(b)) ||
+        (product.is_nan && product.invalid &&
+         !product.is_inf && !product.is_zero &&
+         product.p_sign == (a[15] ^ b[15])));
 
     a_product_flags_exclusive: assert (
         !(product.is_nan && product.is_inf) &&
@@ -77,8 +88,12 @@ module mul_lane_bf16_sva (
          !product.is_inf && !product.is_zero &&
          product.p_sign == (a[15] ^ b[15])));
 
+    // Inf/zero/finite product rules exclude out-of-range operands: an OOR normal
+    // folds to an invalid NaN (asserted by a_oor_forces_invalid_nan above), so it
+    // does not participate in the inf/zero/finite outcomes below.
     a_inf_product_rule: assert (
         !(!bf16_is_nan(a) && !bf16_is_nan(b) &&
+          !bf16_is_oor(a) && !bf16_is_oor(b) &&
           !((bf16_is_zero_ftz(a) && bf16_is_inf(b)) ||
             (bf16_is_inf(a) && bf16_is_zero_ftz(b))) &&
           (bf16_is_inf(a) || bf16_is_inf(b))) ||
@@ -88,6 +103,7 @@ module mul_lane_bf16_sva (
 
     a_zero_product_rule: assert (
         !(!bf16_is_nan(a) && !bf16_is_nan(b) &&
+          !bf16_is_oor(a) && !bf16_is_oor(b) &&
           !bf16_is_inf(a) && !bf16_is_inf(b) &&
           (bf16_is_zero_ftz(a) || bf16_is_zero_ftz(b))) ||
         (product.is_zero && !product.invalid &&
@@ -95,7 +111,8 @@ module mul_lane_bf16_sva (
          product.p_sign == (a[15] ^ b[15])));
 
     a_finite_product_fields: assert (
-        !(bf16_is_normal(a) && bf16_is_normal(b)) ||
+        !(bf16_is_normal(a) && bf16_is_normal(b) &&
+          !bf16_is_oor(a) && !bf16_is_oor(b)) ||
         (!product.is_nan && !product.is_inf && !product.is_zero &&
          !product.invalid &&
          product.p_sign == (a[15] ^ b[15]) &&
@@ -108,6 +125,7 @@ module mul_lane_bf16_sva (
     c_neg_inf:   cover (product.is_inf && product.p_sign);
     c_invalid:   cover (product.invalid);
     c_ftz_zero:  cover ((a[14:7] == 8'h00 && a[6:0] != 7'h00) && product.is_zero);
+    c_oor:       cover (bf16_is_oor(a) && product.is_nan && product.invalid);
   end
 endmodule
 `endif

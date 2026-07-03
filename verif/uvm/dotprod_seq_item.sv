@@ -49,6 +49,7 @@ class dotprod_seq_item extends uvm_sequence_item;
     `uvm_field_sarray_int(b, UVM_ALL_ON)
     `uvm_field_enum(fmt_e, mode, UVM_ALL_ON)
     `uvm_field_int(result, UVM_ALL_ON)
+    `uvm_field_int(status, UVM_ALL_ON)
     `uvm_field_int(sat, UVM_ALL_ON)
   `uvm_object_utils_end
 

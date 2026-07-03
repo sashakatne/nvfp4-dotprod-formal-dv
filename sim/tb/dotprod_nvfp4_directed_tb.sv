@@ -97,7 +97,8 @@ module dotprod_nvfp4_directed_tb;
     end
     pack_scale(a, 8'h38);
     pack_scale(b, 8'h38);
-    check("mixed sign zero", 1'b0, 32'h0);
+    // 8 lanes (+1.0*+1.0) + 8 lanes (-1.0*+1.0) -> inner_sum 0 -> +0.0.
+    check("mixed sign zero", 1'b1, 32'h0000_0000);
 
     // Case 5: max elements (0x7 = +6.0 in E2M1) with max-ish scale
     // E2M1 0x7: sign=0, ee=11, m=1 -> mag=12 (6.0 in 0.5u)
@@ -113,7 +114,9 @@ module dotprod_nvfp4_directed_tb;
     end
     pack_scale(a, 8'h78);
     pack_scale(b, 8'h78);
-    check("max scale case", 1'b0, 32'h0);
+    // inner_sum 2304, scale_sig 64, scale_exp 10 -> M 147456, e2 8 ->
+    // 147456 * 2^8 = 37748736 = 0x4C100000 (exact in FP32).
+    check("max scale case", 1'b1, 32'h4C10_0000);
 
     if (errors) $fatal(1, "DOTPROD_NVFP4_DIRECTED FAIL: %0d errors", errors);
     $display("DOTPROD_NVFP4_DIRECTED PASS (%0d cases)", cases);

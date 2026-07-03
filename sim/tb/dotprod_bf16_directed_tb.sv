@@ -73,6 +73,12 @@ module dotprod_bf16_directed_tb;
     a[1]=16'h3F80; b[1]=16'h3F80;
     check("ftz subnormal", 1'b1, 32'h3F80_0000);
 
+    // Out-of-range operand: 256.0 (exp 143, above the [119,134] window) times
+    // 1.0. The OOR guard folds it into an invalid QNaN for the whole block.
+    clear_inputs();
+    a[0]=16'h4780; b[0]=16'h3F80;   // 256.0 * 1.0 -> OOR
+    check("oor operand", 1'b1, FP32_QNAN);
+
     if (errors) $fatal(1, "DOTPROD_BF16_DIRECTED FAIL: %0d errors", errors);
     $display("DOTPROD_BF16_DIRECTED PASS (%0d cases)", cases);
     $finish;

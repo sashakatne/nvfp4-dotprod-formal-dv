@@ -4,7 +4,7 @@
 class dotprod_base_seq extends uvm_sequence#(dotprod_seq_item);
   `uvm_object_utils(dotprod_base_seq)
   rand int unsigned n_items = 500;
-  constraint c_n_items { n_items == 500; }
+  constraint c_n_items { soft n_items == 500; }
   function new(string name = "dotprod_base_seq"); super.new(name); endfunction
   task body();
     repeat (n_items) begin
@@ -22,7 +22,7 @@ class dotprod_corner_seq extends uvm_sequence#(dotprod_seq_item);
   `uvm_object_utils(dotprod_corner_seq)
   function new(string name = "dotprod_corner_seq"); super.new(name); endfunction
   task body();
-    bit signed [INT8_W-1:0] corners [8][2]; // {a_fill, b_fill}
+    bit signed [INT8_W-1:0] corners [9][2]; // {a_fill, b_fill}
     corners = '{ '{8'sd0,   8'sd0},
                  '{8'sd127, 8'sd127},
                  '{-8'sd128,8'sd127},
@@ -30,7 +30,8 @@ class dotprod_corner_seq extends uvm_sequence#(dotprod_seq_item);
                  '{ 8'sd127,  -8'sd128},   // <maxp,maxn>
                  '{ 8'sd0,    -8'sd128},   // <zero,maxn>
                  '{ 8'sd0,     8'sd127},   // <zero,maxp>
-                 '{-8'sd128,   8'sd0} };   // <maxn,zero>
+                 '{-8'sd128,   8'sd0},     // <maxn,zero>
+                 '{ 8'sd127,   8'sd0} };   // <maxp,zero>
     foreach (corners[k]) begin
       dotprod_seq_item req = dotprod_seq_item::type_id::create("req");
       start_item(req);
@@ -50,13 +51,17 @@ endclass
 class dotprod_bf16_seq extends uvm_sequence#(dotprod_seq_item);
   `uvm_object_utils(dotprod_bf16_seq)
   rand int unsigned n_items = 500;
-  constraint c_n_items { n_items == 500; }
+  constraint c_n_items { soft n_items == 500; }
   function new(string name = "dotprod_bf16_seq"); super.new(name); endfunction
 
-  // Interesting BF16 patterns (exp in [119,134] window, plus specials).
-  local function automatic logic [BF16_W-1:0] pick(int unsigned r);
+  // Interesting BF16 patterns (exp in [119,134] window, plus specials). The
+  // class selector and the in-window exponent/mantissa are drawn from
+  // INDEPENDENT random words (sel vs r), so all 16 window exponents [119,134]
+  // are reachable -- a single word would correlate the selector bits with the
+  // exponent offset and starve most of the window.
+  local function automatic logic [BF16_W-1:0] pick(int unsigned sel, int unsigned r);
     logic [7:0] exp;
-    case (r % 8)
+    case (sel % 8)
       0: pick = 16'h0000;                       // +0
       1: pick = 16'h0001;                        // subnormal -> FTZ
       2: pick = 16'h7F80;                        // +Inf
@@ -64,7 +69,7 @@ class dotprod_bf16_seq extends uvm_sequence#(dotprod_seq_item);
       4: pick = 16'h7FC1;                        // NaN
       default: begin                              // in-window finite
         exp  = 8'(BF16_EXP_LO + (r % (BF16_EXP_HI - BF16_EXP_LO + 1)));
-        pick = {r[0], exp, r[13:7]};             // sign, exp, 7-bit mantissa
+        pick = {r[16], exp, r[6:0]};             // sign, exp, 7-bit mantissa
       end
     endcase
   endfunction
@@ -74,8 +79,8 @@ class dotprod_bf16_seq extends uvm_sequence#(dotprod_seq_item);
       dotprod_seq_item req = dotprod_seq_item::type_id::create("req");
       logic [BF16_W-1:0] av [N_LANES], bv [N_LANES];
       foreach (av[i]) begin
-        av[i] = pick($urandom());
-        bv[i] = pick($urandom());
+        av[i] = pick($urandom(), $urandom());
+        bv[i] = pick($urandom(), $urandom());
       end
       start_item(req);
       if (!req.randomize() with {
@@ -128,6 +133,11 @@ class dotprod_bf16_corner_seq extends uvm_sequence#(dotprod_seq_item);
     av[0]=16'h7F80; bv[0]=16'h3F80;
     drive_vec(av, bv);
 
+    // -Inf only -> -Inf (closes the RES_NEG_INF result class)
+    foreach (av[i]) begin av[i]=16'h0000; bv[i]=16'h0000; end
+    av[0]=16'hFF80; bv[0]=16'h3F80;   // -Inf * +1.0 -> -Inf
+    drive_vec(av, bv);
+
     // Inf minus Inf -> QNaN invalid
     foreach (av[i]) begin av[i]=16'h0000; bv[i]=16'h0000; end
     av[0]=16'h7F80; bv[0]=16'h3F80; av[1]=16'hFF80; bv[1]=16'h3F80;
@@ -143,8 +153,17 @@ class dotprod_bf16_corner_seq extends uvm_sequence#(dotprod_seq_item);
     av[0]=16'h0001; bv[0]=16'h3F80; av[1]=16'h3F80; bv[1]=16'h3F80;
     drive_vec(av, bv);
 
-    // max in-window: all +max * +max (exp 134, full mantissa)
-    foreach (av[i]) begin av[i]=16'h7F7F; bv[i]=16'h7F7F; end
+    // max in-window: all +max * +max (exp 134 = 8'h86, full 7-bit mantissa).
+    // 0x437F = sign 0, exp 8'b1000_0110 (134), mant 7'h7F.
+    foreach (av[i]) begin av[i]=16'h437F; bv[i]=16'h437F; end
+    drive_vec(av, bv);
+
+    // out-of-range operands (exp 143 = 256.0, above the [119,134] window) on
+    // BOTH sides -> whole block resolves to invalid QNaN via the OOR guard.
+    // Driving both operands out-of-window closes the OP_OTHER operand-class bin
+    // on cp_ca AND cp_cb. Exercises the new out-of-window detection.
+    foreach (av[i]) begin av[i]=16'h0000; bv[i]=16'h0000; end
+    av[0]=16'h4780; bv[0]=16'h4780;   // 256.0 * 256.0 -> OOR -> QNaN
     drive_vec(av, bv);
   endtask
 endclass
@@ -157,15 +176,15 @@ endclass
 class dotprod_nvfp4_seq extends uvm_sequence#(dotprod_seq_item);
   `uvm_object_utils(dotprod_nvfp4_seq)
   rand int unsigned n_items = 500;
-  constraint c_n_items { n_items == 500; }
+  constraint c_n_items { soft n_items == 500; }
   function new(string name = "dotprod_nvfp4_seq"); super.new(name); endfunction
 
   // Return an E2M1 nibble from a small curated pool covering value classes.
   // E2M1 encoding: bits[3]=sign, bits[2:1]=EE, bits[0]=M.
   // Values: 0x0=+0, 0x1=+0.5, 0x2=+1, 0x3=+1.5, 0x4=+2, 0x5=+3, 0x6=+4,
-  //         0x7=+6, 0x8=-0, 0x9=-0.5, 0xA=-1, 0xB=-1.5, ...
+  //         0x7=+6, 0x8=-0, 0x9=-0.5, 0xA=-1, 0xB=-1.5, 0xC=-2, 0xD=-3.
   local function automatic logic [3:0] pick_e2m1(int unsigned r);
-    case (r % 10)
+    case (r % 12)
       0:       pick_e2m1 = 4'h0;         // zero
       1:       pick_e2m1 = 4'h1;         // subnormal +0.5
       2:       pick_e2m1 = 4'h2;         // small +1.0
@@ -174,8 +193,10 @@ class dotprod_nvfp4_seq extends uvm_sequence#(dotprod_seq_item);
       5:       pick_e2m1 = 4'h5;         // large +3.0
       6:       pick_e2m1 = 4'h6;         // large +4.0
       7:       pick_e2m1 = 4'h7;         // large +6.0
-      8:       pick_e2m1 = 4'hA;         // negative -1.0
-      default: pick_e2m1 = 4'hD;         // negative -1.5
+      8:       pick_e2m1 = 4'h9;         // negative subnormal -0.5
+      9:       pick_e2m1 = 4'hA;         // negative -1.0
+      10:      pick_e2m1 = 4'hB;         // negative -1.5
+      default: pick_e2m1 = 4'hD;         // negative -3.0
     endcase
   endfunction
 

@@ -19,6 +19,11 @@ function automatic bf16_decoded_t ref_decode_bf16(input logic [BF16_W-1:0] x);
   end else begin
     d.sig = {1'b1, mant};
     d.q = 10'(int'(exp) - 134);
+    // Out-of-range: normal operand with exponent outside the M3 window
+    // [119,134]. Mirrors the RTL front_end_bf16 guard so RTL == golden over the
+    // full BF16 input space; the lane multiply folds is_oor into an
+    // invalid-operation NaN.
+    d.is_oor = (exp < BF16_EXP_LO[7:0]) || (exp > BF16_EXP_HI[7:0]);
   end
 
   ref_decode_bf16 = d;
@@ -36,7 +41,8 @@ function automatic bf16_product_t ref_mul_bf16(
   r = '0;
   r.p_sign = da.sign ^ db.sign;
 
-  if (da.is_nan || db.is_nan) begin
+  if (da.is_nan || db.is_nan || da.is_oor || db.is_oor) begin
+    // NaN operand or out-of-range (out-of-window normal) operand: invalid op.
     r.is_nan = 1'b1;
     r.invalid = 1'b1;
   end else if ((da.is_zero && db.is_inf) || (da.is_inf && db.is_zero)) begin

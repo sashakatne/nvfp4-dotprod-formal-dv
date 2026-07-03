@@ -72,7 +72,7 @@ module final_round_bf16 (
         remainder = mag & low_mask;
         half      = ACC_BF16_W'(1) << (shift - 1);
         round_up  = (remainder > half) || ((remainder == half) && sig_ext[0]);
-`ifdef BUG_INJECTION
+`ifdef BUG_BF16_TRUNC
         // BUG: truncate instead of round-nearest-even. Any input whose exact
         // sum has a fractional part above the round threshold now mismatches
         // dotprod_ref_bf16, falsifying the top AG proof.

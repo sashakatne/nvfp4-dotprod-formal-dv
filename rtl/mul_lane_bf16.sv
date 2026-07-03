@@ -17,7 +17,10 @@ module mul_lane_bf16 (
     product = '0;
     product.p_sign = da.sign ^ db.sign;
 
-    if (da.is_nan || db.is_nan) begin
+    if (da.is_nan || db.is_nan || da.is_oor || db.is_oor) begin
+      // NaN operand, or an out-of-range (out-of-window normal) operand: both are
+      // invalid operations that emit a canonical QNaN and bypass the numeric
+      // accumulator via the special ladder.
       product.is_nan = 1'b1;
       product.invalid = 1'b1;
     end else if ((da.is_zero && db.is_inf) || (da.is_inf && db.is_zero)) begin

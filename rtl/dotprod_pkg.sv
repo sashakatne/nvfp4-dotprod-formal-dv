@@ -32,6 +32,7 @@ package dotprod_pkg;
     logic                      is_zero;
     logic                      is_inf;
     logic                      is_nan;
+    logic                      is_oor;  // normal operand with exp outside [119,134]
   } bf16_decoded_t;
 
   typedef struct packed {

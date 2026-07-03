@@ -1,10 +1,10 @@
-# VC Formal FPV, bug-injected: dotprod_top with BUG_INJECTION must FALSIFY
+# VC Formal FPV, bug-injected: dotprod_top with BUG_INT8_ROUND must FALSIFY
 # the equivalence property (proves the proof has teeth).
 set_fml_appmode FPV
 set design dotprod_top
 
 read_file -top $design -format sverilog -sva \
-  -vcs {-f ../RTL/filelist +define+BUG_INJECTION}
+  -vcs {-f ../RTL/filelist +define+BUG_INT8_ROUND}
 
 # Combinational DUV: named virtual clock, no reset.
 create_clock -name vclk -period 100

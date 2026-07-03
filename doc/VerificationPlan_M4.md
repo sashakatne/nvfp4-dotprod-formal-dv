@@ -29,7 +29,7 @@ composing standalone proofs, applying and extending the M3 lesson.
 | Lane (`mul_lane_nvfp4_sva`) | element decode + `aᵢ·bᵢ` == `ref_mul_nvfp4`, near-exhaustive |
 | Scale (`scale_mul_nvfp4_sva`) | `sA·sB` significand/exp + NaN == golden |
 | Top (`dotprod_nvfp4_sva`) | linear pre-round reduction == golden pre-round |
-| Final round (`final_round_nvfp4`) | proven by directed sim vs golden (exact, no rounding) |
+| Final round (`final_round_nvfp4`) | standalone FPV proof vs golden (added in M5; exact, no rounding) |
 
 **Top proof mechanics.** `mul_lane_nvfp4` is blackboxed
 (`set_blackbox -designs {mul_lane_nvfp4}` before `read_file`). The bound SVA

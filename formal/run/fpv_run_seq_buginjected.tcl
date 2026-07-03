@@ -1,7 +1,7 @@
 set_fml_appmode FPV
 set design dotprod_seq
 read_file -top $design -format sverilog -sva \
-  -vcs {-f ../RTL/filelist_seq +define+BUG_INJECTION}
+  -vcs {-f ../RTL/filelist_seq +define+BUG_SEQ_DROP}
 create_clock clk -period 100
 create_reset rst_n -sense low
 sim_run -stable

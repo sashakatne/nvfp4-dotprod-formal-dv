@@ -149,7 +149,7 @@ module dotprod_seq (
       result    <= core_result;
       status    <= core_status;
     end
-`ifdef BUG_INJECTION
+`ifdef BUG_SEQ_DROP
     else begin
       // BUG: under backpressure stall, drop the held output instead of holding it.
       // Directly violates p_hold_stable.
