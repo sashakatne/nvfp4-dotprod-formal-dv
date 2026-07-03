@@ -1,128 +1,71 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="780" height="620" viewBox="0 0 780 620">
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="580" viewBox="0 0 1000 580">
   <defs>
-    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-      <polygon points="0 0, 8 3, 0 6" fill="#444"/>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#334155"/>
     </marker>
+    <style>
+      .title { font: 700 24px Arial, sans-serif; fill: #111827; }
+      .subtitle { font: 14px Arial, sans-serif; fill: #475569; }
+      .lane-title { font: 700 16px Arial, sans-serif; fill: #111827; }
+      .box-title { font: 700 14px Arial, sans-serif; fill: #111827; }
+      .box-text { font: 12px Arial, sans-serif; fill: #475569; }
+      .mono { font: 12px Menlo, Consolas, monospace; fill: #334155; }
+    </style>
   </defs>
 
-  <!-- Background -->
-  <rect width="780" height="620" fill="#f9f9f9" rx="6"/>
+  <rect width="1000" height="580" fill="#fbfcfe"/>
+  <text x="500" y="38" text-anchor="middle" class="title">Unified dotprod_top Datapath</text>
+  <text x="500" y="62" text-anchor="middle" class="subtitle">One combinational top selects INT8, BF16, or NVFP4 results by mode</text>
 
-  <!-- Title -->
-  <text x="390" y="30" font-family="monospace" font-size="15" font-weight="bold"
-        text-anchor="middle" fill="#111">dotprod_top — INT8 Datapath (M1)</text>
-  <text x="390" y="48" font-family="monospace" font-size="11"
-        text-anchor="middle" fill="#555">N_LANES=8, INT8_W=8, PROD_W=16, ACC_W=24, INT8_OUT_W=32</text>
+  <rect x="35" y="215" width="150" height="125" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="110" y="246" text-anchor="middle" class="lane-title">inputs</text>
+  <text x="110" y="274" text-anchor="middle" class="mono">a[8] / b[8]</text>
+  <text x="110" y="298" text-anchor="middle" class="mono">16-bit lanes</text>
+  <text x="110" y="322" text-anchor="middle" class="mono">mode fmt_e</text>
 
-  <!-- ======================== INPUTS ======================== -->
-  <!-- a[0..7] label -->
-  <rect x="20" y="120" width="110" height="36" rx="4" fill="#dce8f8" stroke="#5a8bbf" stroke-width="1.5"/>
-  <text x="75" y="133" font-family="monospace" font-size="11" text-anchor="middle" fill="#222">a[0..7]</text>
-  <text x="75" y="148" font-family="monospace" font-size="10" text-anchor="middle" fill="#555">8b signed x8</text>
+  <rect x="245" y="100" width="465" height="95" rx="12" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="270" y="127" class="lane-title">INT8 path</text>
+  <rect x="270" y="145" width="115" height="30" rx="5" fill="#ffedd5" stroke="#ea580c"/>
+  <text x="327.5" y="165" text-anchor="middle" class="box-title">low byte</text>
+  <rect x="420" y="145" width="115" height="30" rx="5" fill="#ffedd5" stroke="#ea580c"/>
+  <text x="477.5" y="165" text-anchor="middle" class="box-title">8 products</text>
+  <rect x="570" y="145" width="115" height="30" rx="5" fill="#ffedd5" stroke="#ea580c"/>
+  <text x="627.5" y="165" text-anchor="middle" class="box-title">exact sum</text>
 
-  <!-- b[0..7] label -->
-  <rect x="20" y="172" width="110" height="36" rx="4" fill="#dce8f8" stroke="#5a8bbf" stroke-width="1.5"/>
-  <text x="75" y="185" font-family="monospace" font-size="11" text-anchor="middle" fill="#222">b[0..7]</text>
-  <text x="75" y="200" font-family="monospace" font-size="10" text-anchor="middle" fill="#555">8b signed x8</text>
+  <rect x="245" y="240" width="465" height="105" rx="12" fill="#ecfdf5" stroke="#16a34a" stroke-width="2"/>
+  <text x="270" y="268" class="lane-title">BF16 path</text>
+  <rect x="270" y="288" width="118" height="32" rx="5" fill="#dcfce7" stroke="#16a34a"/>
+  <text x="329" y="309" text-anchor="middle" class="box-title">decode + mul</text>
+  <rect x="420" y="288" width="118" height="32" rx="5" fill="#dcfce7" stroke="#16a34a"/>
+  <text x="479" y="309" text-anchor="middle" class="box-title">align + sum</text>
+  <rect x="570" y="288" width="118" height="32" rx="5" fill="#dcfce7" stroke="#16a34a"/>
+  <text x="629" y="309" text-anchor="middle" class="box-title">RNE / special</text>
 
-  <!-- mode input -->
-  <rect x="20" y="224" width="110" height="36" rx="4" fill="#dce8f8" stroke="#5a8bbf" stroke-width="1.5"/>
-  <text x="75" y="237" font-family="monospace" font-size="11" text-anchor="middle" fill="#222">mode</text>
-  <text x="75" y="252" font-family="monospace" font-size="10" text-anchor="middle" fill="#555">fmt_e (2b)</text>
+  <rect x="245" y="390" width="465" height="105" rx="12" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+  <text x="270" y="418" class="lane-title">NVFP4 path</text>
+  <rect x="270" y="438" width="118" height="32" rx="5" fill="#ede9fe" stroke="#7c3aed"/>
+  <text x="329" y="459" text-anchor="middle" class="box-title">unpack block</text>
+  <rect x="420" y="438" width="118" height="32" rx="5" fill="#ede9fe" stroke="#7c3aed"/>
+  <text x="479" y="459" text-anchor="middle" class="box-title">inner sum</text>
+  <rect x="570" y="438" width="118" height="32" rx="5" fill="#ede9fe" stroke="#7c3aed"/>
+  <text x="629" y="459" text-anchor="middle" class="box-title">scale + FP32</text>
 
-  <!-- ======================== front_end_int8 (x8) ======================== -->
-  <rect x="175" y="100" width="145" height="80" rx="5" fill="#fff7e0" stroke="#c8a000" stroke-width="2"/>
-  <text x="247" y="126" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle" fill="#222">front_end_int8</text>
-  <text x="247" y="143" font-family="monospace" font-size="10" text-anchor="middle" fill="#555">x8 lanes (generate)</text>
-  <text x="247" y="160" font-family="monospace" font-size="10" text-anchor="middle" fill="#555">pass-through a_in, b_in</text>
-  <text x="247" y="174" font-family="monospace" font-size="10" text-anchor="middle" fill="#888">-> a_op, b_op (8b)</text>
+  <rect x="780" y="230" width="145" height="150" rx="12" fill="#f8fafc" stroke="#475569" stroke-width="2.5"/>
+  <text x="852.5" y="260" text-anchor="middle" class="lane-title">mode mux</text>
+  <text x="852.5" y="290" text-anchor="middle" class="mono">result[31:0]</text>
+  <text x="852.5" y="314" text-anchor="middle" class="mono">status</text>
+  <text x="852.5" y="338" text-anchor="middle" class="mono">sat alias</text>
+  <text x="852.5" y="362" text-anchor="middle" class="box-text">default: INT8</text>
 
-  <!-- arrows: a/b -> front_end -->
-  <line x1="130" y1="138" x2="175" y2="138" stroke="#444" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-  <line x1="130" y1="190" x2="175" y2="152" stroke="#444" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <line x1="185" y1="277" x2="245" y2="147" stroke="#334155" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <line x1="185" y1="277" x2="245" y2="292" stroke="#334155" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <line x1="185" y1="277" x2="245" y2="442" stroke="#334155" stroke-width="2.2" marker-end="url(#arrow)"/>
 
-  <!-- mode -> (lint sink note) -->
-  <line x1="130" y1="242" x2="200" y2="242" stroke="#aaa" stroke-width="1.2" stroke-dasharray="4,3"/>
-  <text x="202" y="246" font-family="monospace" font-size="9" fill="#aaa">unused M1</text>
-  <text x="202" y="257" font-family="monospace" font-size="9" fill="#aaa">(lint sink)</text>
+  <line x1="685" y1="160" x2="780" y2="260" stroke="#334155" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <line x1="688" y1="304" x2="780" y2="304" stroke="#334155" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <line x1="688" y1="454" x2="780" y2="350" stroke="#334155" stroke-width="2.2" marker-end="url(#arrow)"/>
 
-  <!-- ======================== mul_lane (x8) ======================== -->
-  <rect x="365" y="100" width="140" height="80" rx="5" fill="#e8f0e8" stroke="#3a7a3a" stroke-width="2"/>
-  <text x="435" y="126" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle" fill="#222">mul_lane</text>
-  <text x="435" y="143" font-family="monospace" font-size="10" text-anchor="middle" fill="#555">x8 (generate)</text>
-  <text x="435" y="158" font-family="monospace" font-size="10" text-anchor="middle" fill="#555">a_op * b_op</text>
-  <text x="435" y="173" font-family="monospace" font-size="10" text-anchor="middle" fill="#888">prod: 16b signed (exact)</text>
-
-  <!-- front_end -> mul_lane -->
-  <line x1="320" y1="140" x2="365" y2="140" stroke="#444" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-  <text x="340" y="133" font-family="monospace" font-size="9" text-anchor="middle" fill="#444">a_op,b_op</text>
-
-  <!-- ======================== align_to_fixed ======================== -->
-  <rect x="175" y="260" width="145" height="70" rx="5" fill="#f0e8f8" stroke="#7a3a9a" stroke-width="2"/>
-  <text x="247" y="283" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle" fill="#222">align_to_fixed</text>
-  <text x="247" y="300" font-family="monospace" font-size="10" text-anchor="middle" fill="#555">sign-extend prod[i]</text>
-  <text x="247" y="316" font-family="monospace" font-size="10" text-anchor="middle" fill="#555">16b -> 24b (ACC_W)</text>
-  <text x="247" y="330" font-family="monospace" font-size="9" text-anchor="middle" fill="#888">no rounding</text>
-
-  <!-- mul_lane -> align_to_fixed (down then left) -->
-  <polyline points="435,180 435,295 320,295" stroke="#444" stroke-width="1.5" fill="none" marker-end="url(#arrowhead)"/>
-  <text x="400" y="288" font-family="monospace" font-size="9" text-anchor="middle" fill="#444">prod[8]</text>
-  <text x="400" y="300" font-family="monospace" font-size="9" text-anchor="middle" fill="#444">16b x8</text>
-
-  <!-- ======================== exact_acc_tree ======================== -->
-  <rect x="365" y="260" width="140" height="70" rx="5" fill="#e8f0e8" stroke="#3a7a3a" stroke-width="2"/>
-  <text x="435" y="280" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle" fill="#222">exact_acc_tree</text>
-  <text x="435" y="297" font-family="monospace" font-size="10" text-anchor="middle" fill="#555">4->2->1 adder tree</text>
-  <text x="435" y="313" font-family="monospace" font-size="10" text-anchor="middle" fill="#555">all 24b exact</text>
-  <text x="435" y="329" font-family="monospace" font-size="9" text-anchor="middle" fill="#888">no rounding</text>
-
-  <!-- align_to_fixed -> exact_acc_tree -->
-  <line x1="320" y1="295" x2="365" y2="295" stroke="#444" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-  <text x="342" y="287" font-family="monospace" font-size="9" text-anchor="middle" fill="#444">wide[8]</text>
-  <text x="342" y="298" font-family="monospace" font-size="9" text-anchor="middle" fill="#444">24b x8</text>
-
-  <!-- ======================== final_round ======================== -->
-  <rect x="280" y="410" width="200" height="70" rx="5" fill="#fde8e8" stroke="#aa3333" stroke-width="2"/>
-  <text x="380" y="432" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle" fill="#222">final_round</text>
-  <text x="380" y="449" font-family="monospace" font-size="10" text-anchor="middle" fill="#555">sat_cast(sum, sat)</text>
-  <text x="380" y="465" font-family="monospace" font-size="10" text-anchor="middle" fill="#555">24b -> 32b saturating</text>
-  <text x="380" y="480" font-family="monospace" font-size="9" text-anchor="middle" fill="#888">BUG_INJECTION guard here</text>
-
-  <!-- exact_acc_tree -> final_round (down, left) -->
-  <polyline points="435,330 435,370 380,370 380,410" stroke="#444" stroke-width="1.5" fill="none" marker-end="url(#arrowhead)"/>
-  <text x="412" y="360" font-family="monospace" font-size="9" text-anchor="middle" fill="#444">sum: 24b</text>
-
-  <!-- ======================== OUTPUTS ======================== -->
-  <!-- result -->
-  <rect x="570" y="400" width="160" height="36" rx="4" fill="#dce8f8" stroke="#5a8bbf" stroke-width="1.5"/>
-  <text x="650" y="413" font-family="monospace" font-size="11" text-anchor="middle" fill="#222">result</text>
-  <text x="650" y="428" font-family="monospace" font-size="10" text-anchor="middle" fill="#555">32b signed saturated</text>
-
-  <!-- sat -->
-  <rect x="570" y="452" width="160" height="36" rx="4" fill="#dce8f8" stroke="#5a8bbf" stroke-width="1.5"/>
-  <text x="650" y="465" font-family="monospace" font-size="11" text-anchor="middle" fill="#222">sat</text>
-  <text x="650" y="480" font-family="monospace" font-size="10" text-anchor="middle" fill="#555">1b (unreachable INT8)</text>
-
-  <!-- final_round -> result -->
-  <line x1="480" y1="418" x2="570" y2="418" stroke="#444" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-  <!-- final_round -> sat -->
-  <line x1="480" y1="465" x2="570" y2="470" stroke="#444" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-
-  <!-- ======================== dotprod_top boundary ======================== -->
-  <rect x="155" y="80" width="590" height="440" rx="8" fill="none" stroke="#666" stroke-width="2" stroke-dasharray="8,4"/>
-  <text x="164" y="98" font-family="monospace" font-size="11" fill="#666">dotprod_top</text>
-
-  <!-- ======================== Legend ======================== -->
-  <rect x="20" y="540" width="740" height="60" rx="4" fill="#f0f0f0" stroke="#ccc" stroke-width="1"/>
-  <text x="30" y="557" font-family="monospace" font-size="10" fill="#333">Legend:</text>
-  <rect x="85" y="546" width="14" height="10" fill="#fff7e0" stroke="#c8a000"/>
-  <text x="102" y="556" font-family="monospace" font-size="10" fill="#333">front-end / decode</text>
-  <rect x="230" y="546" width="14" height="10" fill="#e8f0e8" stroke="#3a7a3a"/>
-  <text x="247" y="556" font-family="monospace" font-size="10" fill="#333">multiply / accumulate</text>
-  <rect x="400" y="546" width="14" height="10" fill="#f0e8f8" stroke="#7a3a9a"/>
-  <text x="417" y="556" font-family="monospace" font-size="10" fill="#333">alignment / extension</text>
-  <rect x="565" y="546" width="14" height="10" fill="#fde8e8" stroke="#aa3333"/>
-  <text x="582" y="556" font-family="monospace" font-size="10" fill="#333">rounding / saturation</text>
-  <text x="30" y="590" font-family="monospace" font-size="9" fill="#777">All paths combinational (no clock/reset). Saturation unreachable for INT8 single-shot (max |sum| = 131072, needs 19b; INT8_OUT_W = 32b).</text>
+  <rect x="245" y="515" width="680" height="40" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="585" y="540" text-anchor="middle" class="box-text">All three format paths are live in the combinational top; the selected mode chooses the visible result/status.</text>
 </svg>

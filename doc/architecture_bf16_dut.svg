@@ -1,95 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="860" height="700" viewBox="0 0 860 700">
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="560" viewBox="0 0 1000 560">
   <defs>
-    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-      <polygon points="0 0, 8 3, 0 6" fill="#444"/>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#334155"/>
     </marker>
+    <style>
+      .title { font: 700 24px Arial, sans-serif; fill: #111827; }
+      .subtitle { font: 14px Arial, sans-serif; fill: #475569; }
+      .box-title { font: 700 15px Arial, sans-serif; fill: #111827; }
+      .box-text { font: 13px Arial, sans-serif; fill: #475569; }
+      .tiny { font: 12px Arial, sans-serif; fill: #64748b; }
+      .mono { font: 12px Menlo, Consolas, monospace; fill: #334155; }
+    </style>
   </defs>
 
-  <rect width="860" height="700" fill="#f9f9f9" rx="6"/>
+  <rect width="1000" height="560" fill="#fbfcfe"/>
+  <text x="500" y="38" text-anchor="middle" class="title">BF16 Datapath and Formal Split</text>
+  <text x="500" y="62" text-anchor="middle" class="subtitle">Eight BF16 lane products feed an exact fixed-point accumulator, special ladder, and final FP32 rounder</text>
 
-  <text x="430" y="30" font-family="monospace" font-size="15" font-weight="bold"
-        text-anchor="middle" fill="#111">dotprod_top — BF16 Datapath (M3)</text>
-  <text x="430" y="48" font-family="monospace" font-size="11"
-        text-anchor="middle" fill="#555">N_LANES=8, BF16_W=16, ACC_BF16_W=56 (LSB 2^-30), FP32_W=32, window E in [119,134]</text>
+  <rect x="35" y="220" width="140" height="100" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="105" y="250" text-anchor="middle" class="box-title">BF16 inputs</text>
+  <text x="105" y="276" text-anchor="middle" class="mono">a[0..7]</text>
+  <text x="105" y="296" text-anchor="middle" class="mono">b[0..7]</text>
 
-  <!-- Inputs -->
-  <rect x="20" y="90" width="120" height="34" rx="4" fill="#dce8f8" stroke="#5a8bbf" stroke-width="1.5"/>
-  <text x="80" y="103" font-family="monospace" font-size="11" text-anchor="middle" fill="#222">a[0..7]</text>
-  <text x="80" y="117" font-family="monospace" font-size="10" text-anchor="middle" fill="#555">BF16 x8</text>
+  <rect x="235" y="145" width="150" height="70" rx="10" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="310" y="174" text-anchor="middle" class="box-title">lane product</text>
+  <text x="310" y="196" text-anchor="middle" class="box-text">decode, FTZ, multiply</text>
+  <rect x="235" y="255" width="150" height="70" rx="10" fill="#ecfdf5" stroke="#16a34a" stroke-width="2"/>
+  <text x="310" y="284" text-anchor="middle" class="box-title">align_bf16</text>
+  <text x="310" y="306" text-anchor="middle" class="box-text">shift into 56-bit grid</text>
+  <rect x="235" y="365" width="150" height="70" rx="10" fill="#ecfdf5" stroke="#16a34a" stroke-width="2"/>
+  <text x="310" y="394" text-anchor="middle" class="box-title">exact sum</text>
+  <text x="310" y="416" text-anchor="middle" class="box-text">8-lane accumulator</text>
 
-  <rect x="20" y="132" width="120" height="34" rx="4" fill="#dce8f8" stroke="#5a8bbf" stroke-width="1.5"/>
-  <text x="80" y="145" font-family="monospace" font-size="11" text-anchor="middle" fill="#222">b[0..7]</text>
-  <text x="80" y="159" font-family="monospace" font-size="10" text-anchor="middle" fill="#555">BF16 x8</text>
+  <rect x="470" y="145" width="175" height="82" rx="10" fill="#fdf2f8" stroke="#be185d" stroke-width="2"/>
+  <text x="557.5" y="176" text-anchor="middle" class="box-title">special_case_bf16</text>
+  <text x="557.5" y="199" text-anchor="middle" class="box-text">NaN, Inf, invalid</text>
+  <text x="557.5" y="218" text-anchor="middle" class="tiny">bypass result/status</text>
 
-  <rect x="20" y="174" width="120" height="30" rx="4" fill="#dce8f8" stroke="#5a8bbf" stroke-width="1.5"/>
-  <text x="80" y="193" font-family="monospace" font-size="11" text-anchor="middle" fill="#222">mode=BF16</text>
+  <rect x="470" y="310" width="175" height="82" rx="10" fill="#e8f3ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="557.5" y="341" text-anchor="middle" class="box-title">final_round_bf16</text>
+  <text x="557.5" y="364" text-anchor="middle" class="box-text">RNE to binary32</text>
+  <text x="557.5" y="383" text-anchor="middle" class="tiny">special bypass wins</text>
 
-  <!-- Blackbox boundary: mul_lane_bf16 -->
-  <rect x="180" y="80" width="200" height="150" rx="6" fill="#fdece0" stroke="#c8722b"
-        stroke-width="2" stroke-dasharray="6 4"/>
-  <text x="280" y="98" font-family="monospace" font-size="11" font-weight="bold"
-        text-anchor="middle" fill="#a85a1a">AG blackbox boundary</text>
+  <rect x="710" y="305" width="130" height="92" rx="10" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+  <text x="775" y="335" text-anchor="middle" class="box-title">mode mux</text>
+  <text x="775" y="361" text-anchor="middle" class="mono">result</text>
+  <text x="775" y="381" text-anchor="middle" class="mono">status</text>
+  <rect x="880" y="315" width="92" height="72" rx="10" fill="#ecfdf5" stroke="#16a34a" stroke-width="2"/>
+  <text x="926" y="344" text-anchor="middle" class="box-title">FP32</text>
+  <text x="926" y="366" text-anchor="middle" class="box-text">+ flags</text>
 
-  <rect x="200" y="110" width="160" height="46" rx="4" fill="#fff3e0" stroke="#c8722b" stroke-width="1.5"/>
-  <text x="280" y="128" font-family="monospace" font-size="11" text-anchor="middle" fill="#222">mul_lane_bf16 x8</text>
-  <text x="280" y="143" font-family="monospace" font-size="9" text-anchor="middle" fill="#666">front_end_bf16 (FTZ) + mul</text>
+  <line x1="175" y1="270" x2="235" y2="180" stroke="#334155" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <line x1="310" y1="215" x2="310" y2="255" stroke="#334155" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <line x1="310" y1="325" x2="310" y2="365" stroke="#334155" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <path d="M385 180 H470" fill="none" stroke="#334155" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <path d="M385 400 H430 V351 H470" fill="none" stroke="#334155" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <path d="M557 227 V310" fill="none" stroke="#334155" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <line x1="645" y1="351" x2="710" y2="351" stroke="#334155" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <line x1="840" y1="351" x2="880" y2="351" stroke="#334155" stroke-width="2.2" marker-end="url(#arrow)"/>
 
-  <rect x="200" y="166" width="160" height="46" rx="4" fill="#fff3e0" stroke="#c8722b" stroke-width="1"/>
-  <text x="280" y="182" font-family="monospace" font-size="9" text-anchor="middle" fill="#666">assumed: product ==</text>
-  <text x="280" y="196" font-family="monospace" font-size="9" text-anchor="middle" fill="#666">ref_mul_bf16(a,b)</text>
+  <rect x="695" y="110" width="270" height="142" rx="12" fill="#fffbea" stroke="#ca8a04" stroke-width="2"/>
+  <text x="830" y="140" text-anchor="middle" class="box-title">formal decomposition</text>
+  <text x="718" y="166" class="box-text">1. lane product == BF16 golden</text>
+  <text x="718" y="190" class="box-text">2. align lanes into fixed grid</text>
+  <text x="718" y="214" class="box-text">3. final round / bypass exact</text>
+  <text x="718" y="238" class="box-text">4. top proves pre-round sum + specials</text>
 
-  <!-- align -->
-  <rect x="200" y="260" width="160" height="44" rx="4" fill="#e6f2e6" stroke="#4a8a4a" stroke-width="1.5"/>
-  <text x="280" y="278" font-family="monospace" font-size="11" text-anchor="middle" fill="#222">align_bf16 x8</text>
-  <text x="280" y="293" font-family="monospace" font-size="9" text-anchor="middle" fill="#666">shift by q+30, signed 56b</text>
-
-  <!-- acc tree -->
-  <rect x="200" y="330" width="160" height="44" rx="4" fill="#e6f2e6" stroke="#4a8a4a" stroke-width="1.5"/>
-  <text x="280" y="348" font-family="monospace" font-size="11" text-anchor="middle" fill="#222">exact_acc_tree #(56)</text>
-  <text x="280" y="363" font-family="monospace" font-size="9" text-anchor="middle" fill="#666">exact 8-lane sum -> sum_bf16</text>
-
-  <!-- special case (bypass) -->
-  <rect x="440" y="260" width="180" height="70" rx="4" fill="#f3e6f2" stroke="#8a4a8a" stroke-width="1.5"/>
-  <text x="530" y="282" font-family="monospace" font-size="11" text-anchor="middle" fill="#222">special_case_bf16</text>
-  <text x="530" y="298" font-family="monospace" font-size="9" text-anchor="middle" fill="#666">NaN / +-Inf / Inf-Inf ladder</text>
-  <text x="530" y="312" font-family="monospace" font-size="9" text-anchor="middle" fill="#666">special_valid/result/status</text>
-
-  <!-- final round -->
-  <rect x="200" y="400" width="420" height="52" rx="4" fill="#e0ecf8" stroke="#3a6ea5" stroke-width="1.5"/>
-  <text x="410" y="420" font-family="monospace" font-size="11" text-anchor="middle" fill="#222">final_round_bf16 — RNE 56b sum -> FP32, or special bypass</text>
-  <text x="410" y="436" font-family="monospace" font-size="9" text-anchor="middle" fill="#666">leading-one + guard/round/sticky, ties-to-even; special passes through</text>
-
-  <!-- mode mux -->
-  <rect x="200" y="478" width="420" height="46" rx="4" fill="#ececec" stroke="#777" stroke-width="1.5"/>
-  <text x="410" y="496" font-family="monospace" font-size="11" text-anchor="middle" fill="#222">result / status mux (by mode)</text>
-  <text x="410" y="511" font-family="monospace" font-size="9" text-anchor="middle" fill="#666">INT8 path (low byte) selected when mode=INT8</text>
-
-  <!-- outputs -->
-  <rect x="680" y="480" width="150" height="34" rx="4" fill="#dfeede" stroke="#4a8a4a" stroke-width="1.5"/>
-  <text x="755" y="500" font-family="monospace" font-size="11" text-anchor="middle" fill="#222">result[31:0] (FP32)</text>
-
-  <rect x="680" y="524" width="150" height="34" rx="4" fill="#dfeede" stroke="#4a8a4a" stroke-width="1.5"/>
-  <text x="755" y="544" font-family="monospace" font-size="10" text-anchor="middle" fill="#222">status {inv,nan,inf,sat}</text>
-
-  <!-- AG proof note -->
-  <rect x="200" y="560" width="620" height="110" rx="6" fill="#fffbe6" stroke="#b8a11a" stroke-width="1.5"/>
-  <text x="210" y="580" font-family="monospace" font-size="11" font-weight="bold" fill="#7a6a10">Assume-Guarantee top proof (four-way, composed by transitivity)</text>
-  <text x="210" y="600" font-family="monospace" font-size="10" fill="#555">1. lane:  mul_lane_bf16 == ref_mul_bf16            (blackboxed above, assumed here)</text>
-  <text x="210" y="616" font-family="monospace" font-size="10" fill="#555">2. align: align_bf16 lane == ref_align_bf16_lane   (standalone, 8/8 proven)</text>
-  <text x="210" y="632" font-family="monospace" font-size="10" fill="#555">3. round: final_round_bf16 == ref_round / bypass   (standalone, proven)</text>
-  <text x="210" y="648" font-family="monospace" font-size="10" fill="#555">4. top:   sum_bf16 == sum(aligned lanes) + special ladder == golden pre-round</text>
-  <text x="210" y="664" font-family="monospace" font-size="10" fill="#555">=> result == dotprod_ref_bf16 by transitivity (shifter + rounder kept out of the top miter)</text>
-
-  <!-- arrows -->
-  <line x1="140" y1="107" x2="198" y2="128" stroke="#444" stroke-width="1.3" marker-end="url(#arrowhead)"/>
-  <line x1="140" y1="149" x2="198" y2="140" stroke="#444" stroke-width="1.3" marker-end="url(#arrowhead)"/>
-  <line x1="280" y1="212" x2="280" y2="258" stroke="#444" stroke-width="1.3" marker-end="url(#arrowhead)"/>
-  <line x1="280" y1="304" x2="280" y2="328" stroke="#444" stroke-width="1.3" marker-end="url(#arrowhead)"/>
-  <line x1="360" y1="200" x2="440" y2="270" stroke="#444" stroke-width="1.1" marker-end="url(#arrowhead)"/>
-  <line x1="280" y1="374" x2="280" y2="398" stroke="#444" stroke-width="1.3" marker-end="url(#arrowhead)"/>
-  <line x1="530" y1="330" x2="450" y2="398" stroke="#444" stroke-width="1.1" marker-end="url(#arrowhead)"/>
-  <line x1="410" y1="452" x2="410" y2="476" stroke="#444" stroke-width="1.3" marker-end="url(#arrowhead)"/>
-  <line x1="620" y1="500" x2="678" y2="500" stroke="#444" stroke-width="1.3" marker-end="url(#arrowhead)"/>
-  <line x1="620" y1="510" x2="678" y2="538" stroke="#444" stroke-width="1.3" marker-end="url(#arrowhead)"/>
+  <rect x="235" y="475" width="730" height="42" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="600" y="501" text-anchor="middle" class="box-text">The top proof keeps the nonlinear shifter and rounder out of the main equivalence miter.</text>
 </svg>

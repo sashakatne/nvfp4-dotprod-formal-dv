@@ -1,140 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="800" height="400">
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="430" viewBox="0 0 1000 430">
   <defs>
-    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-      <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#334155"/>
     </marker>
-    <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-      <polygon points="0 0, 10 3.5, 0 7" fill="#c0392b" />
+    <marker id="arrow-red" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#dc2626"/>
     </marker>
-    <marker id="arrowhead-left" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
-      <polygon points="10 0, 0 3.5, 10 7" fill="#c0392b" />
-    </marker>
+    <style>
+      .title { font: 700 24px Arial, sans-serif; fill: #111827; }
+      .subtitle { font: 14px Arial, sans-serif; fill: #475569; }
+      .box-title { font: 700 15px Arial, sans-serif; fill: #111827; }
+      .box-text { font: 13px Arial, sans-serif; fill: #475569; }
+      .mono { font: 12px Menlo, Consolas, monospace; fill: #334155; }
+    </style>
   </defs>
 
-  <!-- Background -->
-  <rect width="800" height="400" fill="#f8f9fa" rx="4" />
+  <rect width="1000" height="430" fill="#fbfcfe"/>
+  <text x="500" y="38" text-anchor="middle" class="title">dotprod_seq Ready/Valid Wrapper</text>
+  <text x="500" y="62" text-anchor="middle" class="subtitle">Two register stages around the unified INT8/BF16/NVFP4 combinational core</text>
 
-  <!-- Title -->
-  <text x="400" y="24" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#222" text-anchor="middle">dotprod_seq - Sequential Pipeline Architecture</text>
+  <rect x="35" y="140" width="145" height="105" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="107.5" y="169" text-anchor="middle" class="box-title">input side</text>
+  <text x="107.5" y="195" text-anchor="middle" class="mono">in_valid</text>
+  <text x="107.5" y="215" text-anchor="middle" class="mono">in_ready</text>
+  <text x="107.5" y="235" text-anchor="middle" class="box-text">a, b, mode</text>
 
-  <!-- clk / rst_n label at top -->
-  <text x="400" y="50" font-family="Arial, sans-serif" font-size="11" fill="#555" text-anchor="middle">clk / rst_n (synchronous active-low reset to all registers)</text>
-  <line x1="120" y1="55" x2="680" y2="55" stroke="#aaa" stroke-width="1" stroke-dasharray="4,3" />
+  <rect x="245" y="130" width="145" height="125" rx="10" fill="#ecfdf5" stroke="#16a34a" stroke-width="2"/>
+  <text x="317.5" y="160" text-anchor="middle" class="box-title">stage 1 regs</text>
+  <text x="317.5" y="188" text-anchor="middle" class="mono">a_s1, b_s1</text>
+  <text x="317.5" y="208" text-anchor="middle" class="mono">mode_s1</text>
+  <text x="317.5" y="232" text-anchor="middle" class="box-text">loads when !stall</text>
 
-  <!-- ======== Box 1: Input Handshake ======== -->
-  <rect x="20" y="120" width="110" height="140" rx="6" fill="#d6eaf8" stroke="#2980b9" stroke-width="1.5" />
-  <text x="75" y="142" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1a5276" text-anchor="middle">Input</text>
-  <text x="75" y="156" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1a5276" text-anchor="middle">Handshake</text>
-  <text x="75" y="178" font-family="Arial, sans-serif" font-size="10" fill="#2471a3" text-anchor="middle">in_valid</text>
-  <text x="75" y="193" font-family="Arial, sans-serif" font-size="10" fill="#2471a3" text-anchor="middle">in_ready</text>
-  <text x="75" y="210" font-family="Arial, sans-serif" font-size="9" fill="#555" text-anchor="middle">(from producer)</text>
-  <text x="75" y="230" font-family="Arial, sans-serif" font-size="9" fill="#555" text-anchor="middle">a[8], b[8]</text>
-  <text x="75" y="245" font-family="Arial, sans-serif" font-size="9" fill="#555" text-anchor="middle">mode</text>
+  <rect x="455" y="95" width="205" height="195" rx="12" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="557.5" y="126" text-anchor="middle" class="box-title">unified core</text>
+  <rect x="482" y="150" width="150" height="28" rx="5" fill="#ffedd5" stroke="#ea580c"/>
+  <text x="557" y="169" text-anchor="middle" class="box-text">INT8 exact path</text>
+  <rect x="482" y="190" width="150" height="28" rx="5" fill="#dcfce7" stroke="#16a34a"/>
+  <text x="557" y="209" text-anchor="middle" class="box-text">BF16 path</text>
+  <rect x="482" y="230" width="150" height="28" rx="5" fill="#ede9fe" stroke="#7c3aed"/>
+  <text x="557" y="249" text-anchor="middle" class="box-text">NVFP4 path</text>
 
-  <!-- ======== Arrow: Input Handshake -> Stage-1 ======== -->
-  <line x1="130" y1="190" x2="162" y2="190" stroke="#333" stroke-width="1.5" marker-end="url(#arrowhead)" />
+  <rect x="725" y="130" width="145" height="125" rx="10" fill="#ecfdf5" stroke="#16a34a" stroke-width="2"/>
+  <text x="797.5" y="160" text-anchor="middle" class="box-title">stage 2 regs</text>
+  <text x="797.5" y="188" text-anchor="middle" class="mono">result</text>
+  <text x="797.5" y="208" text-anchor="middle" class="mono">status, sat</text>
+  <text x="797.5" y="232" text-anchor="middle" class="box-text">holds on stall</text>
 
-  <!-- ======== Box 2: Stage-1 Regs ======== -->
-  <rect x="162" y="140" width="95" height="100" rx="6" fill="#d5f5e3" stroke="#27ae60" stroke-width="1.5" />
-  <text x="209" y="164" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1d6a36" text-anchor="middle">Stage-1</text>
-  <text x="209" y="178" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1d6a36" text-anchor="middle">Regs</text>
-  <text x="209" y="200" font-family="Arial, sans-serif" font-size="9" fill="#444" text-anchor="middle">a_s1, b_s1</text>
-  <text x="209" y="214" font-family="Arial, sans-serif" font-size="9" fill="#444" text-anchor="middle">v_s1</text>
-  <text x="209" y="228" font-family="Arial, sans-serif" font-size="9" fill="#888" text-anchor="middle">gated by !stall</text>
+  <rect x="915" y="140" width="70" height="105" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="950" y="169" text-anchor="middle" class="box-title">out</text>
+  <text x="950" y="195" text-anchor="middle" class="mono">valid</text>
+  <text x="950" y="215" text-anchor="middle" class="mono">ready</text>
+  <text x="950" y="235" text-anchor="middle" class="box-text">result</text>
 
-  <!-- ======== Arrow: Stage-1 -> M1 Core ======== -->
-  <line x1="257" y1="190" x2="289" y2="190" stroke="#333" stroke-width="1.5" marker-end="url(#arrowhead)" />
+  <line x1="180" y1="192" x2="245" y2="192" stroke="#334155" stroke-width="2.4" marker-end="url(#arrow)"/>
+  <line x1="390" y1="192" x2="455" y2="192" stroke="#334155" stroke-width="2.4" marker-end="url(#arrow)"/>
+  <line x1="660" y1="192" x2="725" y2="192" stroke="#334155" stroke-width="2.4" marker-end="url(#arrow)"/>
+  <line x1="870" y1="192" x2="915" y2="192" stroke="#334155" stroke-width="2.4" marker-end="url(#arrow)"/>
 
-  <!-- ======== Box 3: Proven M1 Core (large) ======== -->
-  <rect x="289" y="90" width="220" height="220" rx="6" fill="#fef9e7" stroke="#d4ac0d" stroke-width="2" />
-  <text x="399" y="112" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#7d6608" text-anchor="middle">Proven M1 Core</text>
-  <text x="399" y="127" font-family="Arial, sans-serif" font-size="9" fill="#888" text-anchor="middle">(combinational, M1 FPV proven)</text>
+  <path d="M950 245 V340 H107 V248" fill="none" stroke="#dc2626" stroke-width="2.5" marker-end="url(#arrow-red)"/>
+  <rect x="402" y="318" width="195" height="34" rx="7" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="499.5" y="340" text-anchor="middle" class="mono">stall = out_valid &amp; !out_ready</text>
+  <rect x="65" y="318" width="145" height="34" rx="7" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="137.5" y="340" text-anchor="middle" class="mono">in_ready = !stall</text>
 
-  <!-- M1 sub-modules as stacked boxes -->
-  <!-- front_end_int8 -->
-  <rect x="309" y="138" width="180" height="26" rx="4" fill="#fdebd0" stroke="#e67e22" stroke-width="1" />
-  <text x="399" y="155" font-family="Arial, sans-serif" font-size="10" fill="#784212" text-anchor="middle">front_end_int8</text>
-
-  <!-- arrow down -->
-  <line x1="399" y1="164" x2="399" y2="173" stroke="#999" stroke-width="1" marker-end="url(#arrowhead)" />
-
-  <!-- mul_lane -->
-  <rect x="309" y="173" width="180" height="26" rx="4" fill="#fdebd0" stroke="#e67e22" stroke-width="1" />
-  <text x="399" y="190" font-family="Arial, sans-serif" font-size="10" fill="#784212" text-anchor="middle">mul_lane</text>
-
-  <!-- arrow down -->
-  <line x1="399" y1="199" x2="399" y2="208" stroke="#999" stroke-width="1" marker-end="url(#arrowhead)" />
-
-  <!-- align_to_fixed -->
-  <rect x="309" y="208" width="180" height="26" rx="4" fill="#fdebd0" stroke="#e67e22" stroke-width="1" />
-  <text x="399" y="225" font-family="Arial, sans-serif" font-size="10" fill="#784212" text-anchor="middle">align_to_fixed</text>
-
-  <!-- arrow down -->
-  <line x1="399" y1="234" x2="399" y2="243" stroke="#999" stroke-width="1" marker-end="url(#arrowhead)" />
-
-  <!-- exact_acc_tree -->
-  <rect x="309" y="243" width="180" height="26" rx="4" fill="#fdebd0" stroke="#e67e22" stroke-width="1" />
-  <text x="399" y="260" font-family="Arial, sans-serif" font-size="10" fill="#784212" text-anchor="middle">exact_acc_tree</text>
-
-  <!-- arrow down -->
-  <line x1="399" y1="269" x2="399" y2="278" stroke="#999" stroke-width="1" marker-end="url(#arrowhead)" />
-
-  <!-- final_round -->
-  <rect x="309" y="278" width="180" height="26" rx="4" fill="#fdebd0" stroke="#e67e22" stroke-width="1" />
-  <text x="399" y="295" font-family="Arial, sans-serif" font-size="10" fill="#784212" text-anchor="middle">final_round</text>
-
-  <!-- ======== Arrow: M1 Core -> Stage-2 ======== -->
-  <line x1="509" y1="190" x2="541" y2="190" stroke="#333" stroke-width="1.5" marker-end="url(#arrowhead)" />
-
-  <!-- ======== Box 4: Stage-2 Regs ======== -->
-  <rect x="541" y="140" width="95" height="100" rx="6" fill="#d5f5e3" stroke="#27ae60" stroke-width="1.5" />
-  <text x="588" y="164" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1d6a36" text-anchor="middle">Stage-2</text>
-  <text x="588" y="178" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1d6a36" text-anchor="middle">Regs</text>
-  <text x="588" y="200" font-family="Arial, sans-serif" font-size="9" fill="#444" text-anchor="middle">result, sat</text>
-  <text x="588" y="214" font-family="Arial, sans-serif" font-size="9" fill="#444" text-anchor="middle">out_valid</text>
-  <text x="588" y="228" font-family="Arial, sans-serif" font-size="9" fill="#888" text-anchor="middle">gated by !stall</text>
-
-  <!-- ======== Arrow: Stage-2 -> Output Handshake ======== -->
-  <line x1="636" y1="190" x2="668" y2="190" stroke="#333" stroke-width="1.5" marker-end="url(#arrowhead)" />
-
-  <!-- ======== Box 5: Output Handshake ======== -->
-  <rect x="668" y="120" width="110" height="140" rx="6" fill="#d6eaf8" stroke="#2980b9" stroke-width="1.5" />
-  <text x="723" y="142" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1a5276" text-anchor="middle">Output</text>
-  <text x="723" y="156" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1a5276" text-anchor="middle">Handshake</text>
-  <text x="723" y="178" font-family="Arial, sans-serif" font-size="10" fill="#2471a3" text-anchor="middle">out_valid</text>
-  <text x="723" y="193" font-family="Arial, sans-serif" font-size="10" fill="#2471a3" text-anchor="middle">out_ready</text>
-  <text x="723" y="210" font-family="Arial, sans-serif" font-size="9" fill="#555" text-anchor="middle">(to consumer)</text>
-  <text x="723" y="230" font-family="Arial, sans-serif" font-size="9" fill="#555" text-anchor="middle">result[32]</text>
-  <text x="723" y="245" font-family="Arial, sans-serif" font-size="9" fill="#555" text-anchor="middle">sat</text>
-
-  <!-- ======== Backpressure feedback path (red) ======== -->
-  <!-- Horizontal line going down from Output Handshake -->
-  <line x1="723" y1="260" x2="723" y2="340" stroke="#c0392b" stroke-width="2" />
-  <!-- Horizontal line going left at bottom -->
-  <line x1="723" y1="340" x2="75" y2="340" stroke="#c0392b" stroke-width="2" />
-  <!-- Arrow going up into Input Handshake box -->
-  <line x1="75" y1="340" x2="75" y2="262" stroke="#c0392b" stroke-width="2" marker-end="url(#arrowhead-red)" />
-
-  <!-- stall label on feedback path -->
-  <rect x="310" y="348" width="178" height="18" rx="3" fill="#fadbd8" stroke="#c0392b" stroke-width="1" />
-  <text x="399" y="361" font-family="Arial, sans-serif" font-size="10" fill="#922b21" text-anchor="middle">stall = out_valid &amp; !out_ready</text>
-
-  <!-- in_ready label on left side of feedback -->
-  <rect x="22" y="348" width="107" height="18" rx="3" fill="#fadbd8" stroke="#c0392b" stroke-width="1" />
-  <text x="75" y="361" font-family="Arial, sans-serif" font-size="10" fill="#922b21" text-anchor="middle">in_ready = !stall</text>
-
-  <!-- vertical tick marks to connect labels to feedback line -->
-  <line x1="399" y1="340" x2="399" y2="348" stroke="#c0392b" stroke-width="1" stroke-dasharray="3,2" />
-  <line x1="75" y1="340" x2="75" y2="348" stroke="#c0392b" stroke-width="1" stroke-dasharray="3,2" />
-
-  <!-- Legend -->
-  <rect x="20" y="375" width="12" height="10" fill="#d6eaf8" stroke="#2980b9" stroke-width="1" />
-  <text x="36" y="384" font-family="Arial, sans-serif" font-size="9" fill="#444">Handshake</text>
-  <rect x="110" y="375" width="12" height="10" fill="#d5f5e3" stroke="#27ae60" stroke-width="1" />
-  <text x="126" y="384" font-family="Arial, sans-serif" font-size="9" fill="#444">Pipeline Regs</text>
-  <rect x="215" y="375" width="12" height="10" fill="#fef9e7" stroke="#d4ac0d" stroke-width="1" />
-  <text x="231" y="384" font-family="Arial, sans-serif" font-size="9" fill="#444">M1 Core (proven)</text>
-  <line x1="340" y1="380" x2="360" y2="380" stroke="#c0392b" stroke-width="2" />
-  <text x="365" y="384" font-family="Arial, sans-serif" font-size="9" fill="#922b21">Backpressure path</text>
+  <text x="500" y="392" text-anchor="middle" class="box-text">Formal focus: held output stays valid and stable whenever out_valid is high and out_ready is low.</text>
 </svg>
