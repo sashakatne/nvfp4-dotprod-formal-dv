@@ -1,0 +1,244 @@
+[01m[31mNote:[0m DISPLAY is not set, GUI view commands are disabled.
+
+                                   VC Static 
+
+               Version V-2023.12-SP2-3 for linux64 - Oct 12, 2024
+
+                    Copyright (c) 2010 - 2024 Synopsys, Inc.
+   This software and the associated documentation are proprietary to Synopsys,
+ Inc. This software may only be used in accordance with the terms and conditions
+ of a written license agreement with Synopsys, Inc. All other use, reproduction,
+   or distribution of this software is strictly prohibited.  Licensed Products
+     communicate with Synopsys servers for the purpose of providing software
+    updates, detecting software piracy and verifying that customers are using
+    Licensed Products in conformity with the applicable License Key for such
+  Licensed Products. Synopsys will use information gathered in connection with
+    this process to deliver software updates and pursue software pirates and
+                                   infringers.
+
+ Inclusivity & Diversity - Visit SolvNetPlus to read the "Synopsys Statement on
+            Inclusivity and Diversity" (Refer to article 000036315 at
+                        https://solvnetplus.synopsys.com)
+
+vcf> vcf> set_fml_appmode FPV
+1
+set design mul_lane_bf16
+mul_lane_bf16
+read_file -top $design -format sverilog -sva -vcs {-f ../RTL/filelist_lane_bf16}
+Warning-[SFCORW] Source file cannot be opened
+  Source file "nvfp4_unpack.svh" cannot be opened for reading due to 'No such 
+  file or directory'.
+  It will be skipped.
+  "../../rtl/dotprod_pkg.sv", 89
+  Source info:   `include "nvfp4_unpack.svh"
+
+Note-[SV-LCM-PPWI] Package previously wildcard imported
+../../rtl/mul_lane_bf16.sv, 3
+$unit
+  Package 'dotprod_pkg' already wildcard imported. 
+  Ignoring dotprod_pkg::*
+  See the SystemVerilog LRM(1800-2005), section 19.2.1.
+
+Note-[SV-LCM-PPWI] Package previously wildcard imported
+../RTL/front_end_bf16_sva.sva, 3
+$unit
+  Package 'dotprod_pkg' already wildcard imported. 
+  Ignoring dotprod_pkg::*
+  See the SystemVerilog LRM(1800-2005), section 19.2.1.
+
+Note-[SV-LCM-PPWI] Package previously wildcard imported
+../RTL/mul_lane_bf16_sva.sva, 3
+$unit
+  Package 'dotprod_pkg' already wildcard imported. 
+  Ignoring dotprod_pkg::*
+  See the SystemVerilog LRM(1800-2005), section 19.2.1.
+
+Lint-[XMRE-L] Cross-module reference resolution error
+../../ref/dotprod_ref_nvfp4.svh, 68
+"ref_unpack_nvfp4"
+  The cross-module reference in following instance path cannot be resolved.
+  'ROOT.dotprod_pkg'
+
+Lint-[XMRE-L] Cross-module reference resolution error
+../../ref/dotprod_ref_nvfp4.svh, 69
+"ref_unpack_nvfp4"
+  The cross-module reference in following instance path cannot be resolved.
+  'ROOT.dotprod_pkg'
+
+Info: Invoking New SVA Compiler Instrument...
+Info: SVAC-NC Start
+Info: SVAC-NC Finished
+Info: Invoking Simon...
+Info: Simon VCS Start
+=======================================================
+VCS CPU Time(s)     :0.72
+SIMON CPU Time(s)   :0.32
+SIMON Total Time(s) :0.14
+Peak Memory(MB)     :479
+=======================================================
+Info: Simon VCS Finished
+Info: Simon call complete 
+Info: Exiting after Simon Analysis 
+Verdi KDB elaboration done and the database successfully generated: 0 error(s), 0 warning(s)
+[Info] DB_COPT045: Vcs analyzer task has finished.
+[Info] PROP_I_COLLECT: Collecting Source Properties from the view:mul_lane_bf16.
+# Gate Counts 
+Number of Flat Instances = 565
+Number of Operator = 565
+Number of Libcells = 0
+Number of Black-Box Instances = 0
+Number of FlipFlop BitWise = 0
+Number of Latch Bitwise = 0
+Number of Nand BitWise = 19
+Number of Comb logic = 564
+
+1
+create_clock -name vclk -period 100
+fpv_run_lane_bf16.tcl:4: [Info] CLOCK_WITHOUT_SOURCES: Creating clock named 'vclk' with no sources.
+1
+sim_run -stable
+[Info] SIM_I_CREATE: Create Simulation Model.
+1
+sim_save_reset
+1
+check_fv -block
+[Info] FORMAL_I_CREATE: Create Formal Model:mul_lane_bf16.
+[Info] FORMAL_I_RUN: Starting formal verification for check_fv
+	  Id: 0  Goals: 37  Constraints: 0  Block Mode: true
+[Info] LIC_UNUSED_WORKERS: 8 unused worker(s) based 1 licenses needed to support 4 workers requested.
+	Use 'set_grid_usage' to maximize worker usage and improve performance, if there are sufficient compute resources to support more workers.
+	Each runtime license supports 12 workers.
+[Info] LIC_RT_CHECKOUT: VC Formal run time license checkout. Base:1  FPV:1.
+[Warning] LEARNED_DATA_NOT_FOUND: No existing learned data found in 'mul_lane_bf16_learn_dir'
+[Info] BITLEVEL_MODEL_STATS: Generated model with 1715 gates, 32 inputs, 0 registers, 0 initial constraints, 0 constraints.
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_a.u_sva.a_decode_preserves_sign  proven    00:00:01
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_b.u_sva.a_decode_preserves_sign  proven    00:00:01
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.a_invalid_only_on_nan_product  proven    00:00:01
+[Info] BITLEVEL_MODEL_STATS: Generated model with 1517 gates, 32 inputs, 0 registers, 0 initial constraints, 0 constraints.
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_a.u_sva.a_decode_oor  proven    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_b.u_sva.a_decode_oor  proven    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_a.u_sva.a_decode_flags_exclusive  checking    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_a.u_sva.a_decode_inf  checking    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_a.u_sva.a_decode_nan  checking    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_a.u_sva.a_decode_normal  checking    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_a.u_sva.a_decode_zero_ftz  checking    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_a.u_sva.c_oor_high  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_b.u_sva.c_oor_low  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.c_invalid  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.c_nan  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.c_oor  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_b.u_sva.c_oor_high  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_a.u_sva.c_inwindow  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_a.u_sva.c_oor_low  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_b.u_sva.c_inwindow  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.c_numeric  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.c_ftz_zero  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.c_pos_inf  covered:36    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_b.u_sva.a_decode_flags_exclusive  checking    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_b.u_sva.a_decode_inf  checking    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_b.u_sva.a_decode_nan  checking    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_b.u_sva.a_decode_normal  checking    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_b.u_sva.a_decode_zero_ftz  checking    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.c_neg_inf  covered:20    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_a.u_sva.a_decode_flags_exclusive  proven    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_a.u_sva.a_decode_inf  proven    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_a.u_sva.a_decode_nan  proven    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_a.u_sva.a_decode_normal  proven    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_a.u_sva.a_decode_zero_ftz  proven    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_b.u_sva.a_decode_flags_exclusive  proven    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_b.u_sva.a_decode_inf  proven    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_b.u_sva.a_decode_nan  proven    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_b.u_sva.a_decode_normal  proven    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.fe_b.u_sva.a_decode_zero_ftz  proven    00:00:02
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.a_finite_product_fields  checking    00:00:03
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.a_inf_product_rule  checking    00:00:03
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.a_nan_operand_forces_invalid_nan  checking    00:00:03
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.a_oor_forces_invalid_nan  checking    00:00:03
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.a_product_flags_exclusive  checking    00:00:03
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.a_product_matches_ref  checking    00:00:03
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.a_special_products_have_zero_numeric_payload  checking    00:00:03
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.a_zero_product_rule  checking    00:00:03
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.a_zero_times_inf_is_invalid_nan  checking    00:00:03
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.a_finite_product_fields  proven    00:00:05
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.a_inf_product_rule  proven    00:00:05
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.a_nan_operand_forces_invalid_nan  proven    00:00:05
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.a_oor_forces_invalid_nan  proven    00:00:05
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.a_product_flags_exclusive  proven    00:00:05
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.a_product_matches_ref  proven    00:00:05
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.a_special_products_have_zero_numeric_payload  proven    00:00:05
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.a_zero_product_rule  proven    00:00:05
+[Info] PROP_I_RESULT: mul_lane_bf16.u_sva.a_zero_times_inf_is_invalid_nan  proven    00:00:05
+1
+report_fv -list
+
+  Summary Results
+   Property Summary: FPV
+   -----------------
+   > Assertion
+     - # found        : 24
+     - # proven       : 24
+
+   > Cover
+     - # found        : 13
+     - # covered      : 13
+
+
+  List Results
+   Property List:
+   --------------
+   > Assertion
+     # Assertion: 24
+     [   0] proven                                  -  mul_lane_bf16.fe_a.u_sva.a_decode_flags_exclusive
+     [   1] proven                                  -  mul_lane_bf16.fe_a.u_sva.a_decode_inf
+     [   2] proven                                  -  mul_lane_bf16.fe_a.u_sva.a_decode_nan
+     [   3] proven                                  -  mul_lane_bf16.fe_a.u_sva.a_decode_normal
+     [   4] proven                                  -  mul_lane_bf16.fe_a.u_sva.a_decode_oor
+     [   5] proven                                  -  mul_lane_bf16.fe_a.u_sva.a_decode_preserves_sign
+     [   6] proven                                  -  mul_lane_bf16.fe_a.u_sva.a_decode_zero_ftz
+     [  10] proven                                  -  mul_lane_bf16.fe_b.u_sva.a_decode_flags_exclusive
+     [  11] proven                                  -  mul_lane_bf16.fe_b.u_sva.a_decode_inf
+     [  12] proven                                  -  mul_lane_bf16.fe_b.u_sva.a_decode_nan
+     [  13] proven                                  -  mul_lane_bf16.fe_b.u_sva.a_decode_normal
+     [  14] proven                                  -  mul_lane_bf16.fe_b.u_sva.a_decode_oor
+     [  15] proven                                  -  mul_lane_bf16.fe_b.u_sva.a_decode_preserves_sign
+     [  16] proven                                  -  mul_lane_bf16.fe_b.u_sva.a_decode_zero_ftz
+     [  20] proven                                  -  mul_lane_bf16.u_sva.a_finite_product_fields
+     [  21] proven                                  -  mul_lane_bf16.u_sva.a_inf_product_rule
+     [  22] proven                                  -  mul_lane_bf16.u_sva.a_invalid_only_on_nan_product
+     [  23] proven                                  -  mul_lane_bf16.u_sva.a_nan_operand_forces_invalid_nan
+     [  24] proven                                  -  mul_lane_bf16.u_sva.a_oor_forces_invalid_nan
+     [  25] proven                                  -  mul_lane_bf16.u_sva.a_product_flags_exclusive
+     [  26] proven                                  -  mul_lane_bf16.u_sva.a_product_matches_ref
+     [  27] proven                                  -  mul_lane_bf16.u_sva.a_special_products_have_zero_numeric_payload
+     [  28] proven                                  -  mul_lane_bf16.u_sva.a_zero_product_rule
+     [  29] proven                                  -  mul_lane_bf16.u_sva.a_zero_times_inf_is_invalid_nan
+
+   > Cover
+     # Cover: 13
+     [   7] covered     (depth=0)                   -  mul_lane_bf16.fe_a.u_sva.c_inwindow
+     [   8] covered     (depth=0)                   -  mul_lane_bf16.fe_a.u_sva.c_oor_high
+     [   9] covered     (depth=0)                   -  mul_lane_bf16.fe_a.u_sva.c_oor_low
+     [  17] covered     (depth=0)                   -  mul_lane_bf16.fe_b.u_sva.c_inwindow
+     [  18] covered     (depth=0)                   -  mul_lane_bf16.fe_b.u_sva.c_oor_high
+     [  19] covered     (depth=0)                   -  mul_lane_bf16.fe_b.u_sva.c_oor_low
+     [  30] covered     (depth=0)                   -  mul_lane_bf16.u_sva.c_ftz_zero
+     [  31] covered     (depth=0)                   -  mul_lane_bf16.u_sva.c_invalid
+     [  32] covered     (depth=0)                   -  mul_lane_bf16.u_sva.c_nan
+     [  33] covered     (depth=20)                  -  mul_lane_bf16.u_sva.c_neg_inf
+     [  34] covered     (depth=0)                   -  mul_lane_bf16.u_sva.c_numeric
+     [  35] covered     (depth=0)                   -  mul_lane_bf16.u_sva.c_oor
+     [  36] covered     (depth=36)                  -  mul_lane_bf16.u_sva.c_pos_inf
+
+
+1
+puts "FPV_RUN_LANE_BF16_DONE"
+FPV_RUN_LANE_BF16_DONE
+quit -f
+=======================================================
+Total Time(S)  :26.81
+CPU Time(S)    :6.90
+Peak Memory(MB):1427
+========================Formal=========================
+Engine Wall Time(S)    :16.48
+Engine Peak Memory(MB) :276
+=======================================================

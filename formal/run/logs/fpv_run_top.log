@@ -1,0 +1,15 @@
+               Version V-2023.12-SP2-3 for linux64 - Oct 12, 2024
+    updates, detecting software piracy and verifying that customers are using
+# Gate Counts 
+----- assertion status -----
+[Info] PROP_I_RESULT: dotprod_top.u_sva.a_result_matches_ref  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_top.u_sva.c_int8_sat_unreachable  uncoverable    00:00:00
+[Info] PROP_I_RESULT: dotprod_top.u_sva.c_negative_result  covered    00:00:00
+[Info] PROP_I_RESULT: dotprod_top.u_sva.c_positive_result  covered    00:00:00
+     - # proven       : 1
+     - # covered      : 2
+     [  0] proven                                  -  dotprod_top.u_sva.a_result_matches_ref
+     [  2] uncoverable                             -  dotprod_top.u_sva.c_int8_sat_unreachable
+     [  3] covered     (depth=0)                   -  dotprod_top.u_sva.c_negative_result
+     [  4] covered     (depth=0)                   -  dotprod_top.u_sva.c_positive_result
+EVIDENCE_VERDICT: job=fpv_run_top kind=clean proven=1 falsified=0 covered=2

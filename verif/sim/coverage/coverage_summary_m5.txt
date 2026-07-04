@@ -1,0 +1,19 @@
+QuestaSim-64 vcover 2024.2 Coverage Utility 2024.05 May 20 2024
+----- merged coverage summary (merged_excl.ucdb) -----
+QuestaSim-64 vcover 2024.2 Coverage Utility 2024.05 May 20 2024
+Start time: 00:31:15 on Jul 04,2026
+vcover report -summary merged_excl.ucdb 
+Coverage Report Totals BY INSTANCES: Number of Instances 122
+
+    Enabled Coverage              Bins      Hits    Misses    Weight  Coverage
+    ----------------              ----      ----    ------    ------  --------
+    Branches                         6         6         0         1   100.00%
+    Covergroups                      9        na        na         1   100.00%
+        Coverpoints/Crosses         19        na        na         1        na
+            Covergroup Bins        206       206         0         1   100.00%
+    Expressions                      4         4         0         1   100.00%
+    Statements                      27        27         0         1   100.00%
+Total coverage (filtered view): 100.00%
+
+End time: 00:31:15 on Jul 04,2026, Elapsed time: 0:00:00
+Errors: 0, Warnings: 0

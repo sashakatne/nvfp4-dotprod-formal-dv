@@ -1,0 +1,24 @@
+               Version V-2023.12-SP2-3 for linux64 - Oct 12, 2024
+    updates, detecting software piracy and verifying that customers are using
+# for normal UE4M3 inputs.
+----- assertion status -----
+[Info] PROP_I_RESULT: scale_mul_nvfp4.u_sva.a_nan  proven    00:00:00
+[Info] PROP_I_RESULT: scale_mul_nvfp4.u_sva.a_sig  proven    00:00:00
+[Info] PROP_I_RESULT: scale_mul_nvfp4.u_sva.a_exp  falsified    00:00:01
+[Info] PROP_I_RESULT: scale_mul_nvfp4.u_sva.c_max  covered    00:00:01
+[Info] PROP_I_RESULT: scale_mul_nvfp4.u_sva.c_zero  covered    00:00:01
+[Info] PROP_I_RESULT: scale_mul_nvfp4.u_sva.c_nan  covered    00:00:01
+[Info] PROP_I_RESULT: scale_mul_nvfp4.u_sva.c_normal  covered    00:00:01
+[Info] PROP_I_RESULT: scale_mul_nvfp4.u_sva.c_subnormal  covered    00:00:01
+     - # proven       : 2
+     - # falsified    : 1
+     - # covered      : 5
+     [  0] falsified   (depth=0)                   -  scale_mul_nvfp4.u_sva.a_exp
+     [  1] proven                                  -  scale_mul_nvfp4.u_sva.a_nan
+     [  2] proven                                  -  scale_mul_nvfp4.u_sva.a_sig
+     [  3] covered     (depth=0)                   -  scale_mul_nvfp4.u_sva.c_max
+     [  4] covered     (depth=0)                   -  scale_mul_nvfp4.u_sva.c_nan
+     [  5] covered     (depth=0)                   -  scale_mul_nvfp4.u_sva.c_normal
+     [  6] covered     (depth=0)                   -  scale_mul_nvfp4.u_sva.c_subnormal
+     [  7] covered     (depth=0)                   -  scale_mul_nvfp4.u_sva.c_zero
+EVIDENCE_VERDICT: job=fpv_run_scale_nvfp4_buginjected kind=bug proven=2 falsified=1 covered=5

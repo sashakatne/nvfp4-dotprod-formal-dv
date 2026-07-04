@@ -1,0 +1,90 @@
+               Version V-2023.12-SP2-3 for linux64 - Oct 12, 2024
+    updates, detecting software piracy and verifying that customers are using
+# Gate Counts 
+----- assertion status -----
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_a.u_sva.a_decode_sign  proven    00:00:01
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_b.u_sva.a_decode_sign  proven    00:00:01
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_a.u_sva.a_decode_matches_ref  falsified    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_a.u_sva.c_mag_12_neg  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_b.u_sva.c_mag_1_neg  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.u_sva.a_product_matches_ref  falsified    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.u_sva.c_positive_product  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.u_sva.c_subnormal_operand  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_a.u_sva.c_mag_6_pos  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_b.u_sva.c_mag_3_neg  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.u_sva.c_negative_product  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_a.u_sva.c_mag_2_neg  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_b.u_sva.c_mag_8_pos  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_a.u_sva.c_mag_3_pos  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_b.u_sva.c_mag_6_pos  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_a.u_sva.c_mag_4_neg  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_b.u_sva.c_mag_2_pos  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_a.u_sva.c_mag_12_pos  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_b.u_sva.c_mag_0_pos  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.u_sva.c_zero_product  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_b.u_sva.c_mag_4_neg  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_a.u_sva.c_mag_0_pos  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_b.u_sva.c_mag_2_neg  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_a.u_sva.c_mag_8_neg  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_b.u_sva.c_mag_3_pos  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_a.u_sva.c_mag_0_neg  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_b.u_sva.c_mag_6_neg  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_a.u_sva.c_mag_3_neg  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_a.u_sva.c_mag_1_pos  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_a.u_sva.c_mag_1_neg  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_a.u_sva.c_mag_2_pos  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_b.u_sva.a_decode_matches_ref  falsified:1    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_b.u_sva.c_mag_12_pos  covered:1    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_b.u_sva.c_mag_4_pos  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_a.u_sva.c_mag_8_pos  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_b.u_sva.c_mag_12_neg  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_a.u_sva.c_mag_6_neg  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_b.u_sva.c_mag_0_neg  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_a.u_sva.c_mag_4_pos  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_b.u_sva.c_mag_8_neg  covered    00:00:02
+[Info] PROP_I_RESULT: mul_lane_nvfp4.fe_b.u_sva.c_mag_1_pos  covered    00:00:02
+     - # proven       : 2
+     - # falsified    : 3
+     - # covered      : 36
+     [   0] falsified   (depth=0)                   -  mul_lane_nvfp4.fe_a.u_sva.a_decode_matches_ref
+     [   1] proven                                  -  mul_lane_nvfp4.fe_a.u_sva.a_decode_sign
+     [  18] falsified   (depth=1)                   -  mul_lane_nvfp4.fe_b.u_sva.a_decode_matches_ref
+     [  19] proven                                  -  mul_lane_nvfp4.fe_b.u_sva.a_decode_sign
+     [  36] falsified   (depth=0)                   -  mul_lane_nvfp4.u_sva.a_product_matches_ref
+     [   2] covered     (depth=0)                   -  mul_lane_nvfp4.fe_a.u_sva.c_mag_0_neg
+     [   3] covered     (depth=0)                   -  mul_lane_nvfp4.fe_a.u_sva.c_mag_0_pos
+     [   4] covered     (depth=0)                   -  mul_lane_nvfp4.fe_a.u_sva.c_mag_12_neg
+     [   5] covered     (depth=0)                   -  mul_lane_nvfp4.fe_a.u_sva.c_mag_12_pos
+     [   6] covered     (depth=0)                   -  mul_lane_nvfp4.fe_a.u_sva.c_mag_1_neg
+     [   7] covered     (depth=0)                   -  mul_lane_nvfp4.fe_a.u_sva.c_mag_1_pos
+     [   8] covered     (depth=0)                   -  mul_lane_nvfp4.fe_a.u_sva.c_mag_2_neg
+     [   9] covered     (depth=0)                   -  mul_lane_nvfp4.fe_a.u_sva.c_mag_2_pos
+     [  10] covered     (depth=0)                   -  mul_lane_nvfp4.fe_a.u_sva.c_mag_3_neg
+     [  11] covered     (depth=0)                   -  mul_lane_nvfp4.fe_a.u_sva.c_mag_3_pos
+     [  12] covered     (depth=0)                   -  mul_lane_nvfp4.fe_a.u_sva.c_mag_4_neg
+     [  13] covered     (depth=0)                   -  mul_lane_nvfp4.fe_a.u_sva.c_mag_4_pos
+     [  14] covered     (depth=0)                   -  mul_lane_nvfp4.fe_a.u_sva.c_mag_6_neg
+     [  15] covered     (depth=0)                   -  mul_lane_nvfp4.fe_a.u_sva.c_mag_6_pos
+     [  16] covered     (depth=0)                   -  mul_lane_nvfp4.fe_a.u_sva.c_mag_8_neg
+     [  17] covered     (depth=0)                   -  mul_lane_nvfp4.fe_a.u_sva.c_mag_8_pos
+     [  20] covered     (depth=0)                   -  mul_lane_nvfp4.fe_b.u_sva.c_mag_0_neg
+     [  21] covered     (depth=0)                   -  mul_lane_nvfp4.fe_b.u_sva.c_mag_0_pos
+     [  22] covered     (depth=0)                   -  mul_lane_nvfp4.fe_b.u_sva.c_mag_12_neg
+     [  23] covered     (depth=1)                   -  mul_lane_nvfp4.fe_b.u_sva.c_mag_12_pos
+     [  24] covered     (depth=0)                   -  mul_lane_nvfp4.fe_b.u_sva.c_mag_1_neg
+     [  25] covered     (depth=0)                   -  mul_lane_nvfp4.fe_b.u_sva.c_mag_1_pos
+     [  26] covered     (depth=0)                   -  mul_lane_nvfp4.fe_b.u_sva.c_mag_2_neg
+     [  27] covered     (depth=0)                   -  mul_lane_nvfp4.fe_b.u_sva.c_mag_2_pos
+     [  28] covered     (depth=0)                   -  mul_lane_nvfp4.fe_b.u_sva.c_mag_3_neg
+     [  29] covered     (depth=0)                   -  mul_lane_nvfp4.fe_b.u_sva.c_mag_3_pos
+     [  30] covered     (depth=0)                   -  mul_lane_nvfp4.fe_b.u_sva.c_mag_4_neg
+     [  31] covered     (depth=0)                   -  mul_lane_nvfp4.fe_b.u_sva.c_mag_4_pos
+     [  32] covered     (depth=0)                   -  mul_lane_nvfp4.fe_b.u_sva.c_mag_6_neg
+     [  33] covered     (depth=0)                   -  mul_lane_nvfp4.fe_b.u_sva.c_mag_6_pos
+     [  34] covered     (depth=0)                   -  mul_lane_nvfp4.fe_b.u_sva.c_mag_8_neg
+     [  35] covered     (depth=0)                   -  mul_lane_nvfp4.fe_b.u_sva.c_mag_8_pos
+     [  38] covered     (depth=0)                   -  mul_lane_nvfp4.u_sva.c_negative_product
+     [  39] covered     (depth=0)                   -  mul_lane_nvfp4.u_sva.c_positive_product
+     [  40] covered     (depth=0)                   -  mul_lane_nvfp4.u_sva.c_subnormal_operand
+     [  41] covered     (depth=0)                   -  mul_lane_nvfp4.u_sva.c_zero_product
+EVIDENCE_VERDICT: job=fpv_run_lane_nvfp4_buginjected kind=bug proven=2 falsified=3 covered=36

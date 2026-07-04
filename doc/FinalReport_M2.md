@@ -6,6 +6,8 @@
 
 ---
 
+> Consolidated tool evidence for all milestones is committed under the M5 snapshot (formal/run/logs/, verif/sim/transcripts/, verif/sim/coverage/); this report cites summarized results.
+
 ## 1. Summary
 
 M2 wraps the M1-proven INT8 dot-product core in a 2-stage pipeline with a ready/valid handshake and global-stall backpressure. A full UVM environment was built from scratch: two agents (input and output), a scoreboard with a golden reference model, and a functional coverage subscriber. Three UVM tests ran with the configured tools - 1504 total transactions across random, backpressure-stressed, and directed-corner scenarios, with zero mismatches and zero scoreboard leftovers. Merged code coverage hit 100% statements, 100% branches, and 92.91% total. Three SVA protocol properties were proven clean in VC Formal with non-vacuous witnesses; both cover properties were reached. A bug-injected run falsified `p_hold_stable` at depth 4, confirming the property catches the stall-path mutation.

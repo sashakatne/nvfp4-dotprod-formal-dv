@@ -6,6 +6,8 @@
 
 ---
 
+> Consolidated tool evidence for all milestones is committed under the M5 snapshot (formal/run/logs/, verif/sim/transcripts/, verif/sim/coverage/); this report cites summarized results.
+
 ## 1. Summary
 
 M4 adds NVFP4 (NVIDIA's Blackwell block-scaled FP4) as the third numeric tier

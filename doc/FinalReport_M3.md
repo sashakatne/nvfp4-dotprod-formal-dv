@@ -6,6 +6,8 @@
 
 ---
 
+> Consolidated tool evidence for all milestones is committed under the M5 snapshot (formal/run/logs/, verif/sim/transcripts/, verif/sim/coverage/); this report cites summarized results.
+
 ## 1. Summary
 
 M3 adds a BF16 dot-product tier to the INT8 design without changing the proven

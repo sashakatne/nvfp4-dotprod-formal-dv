@@ -1,0 +1,260 @@
+[01m[31mNote:[0m DISPLAY is not set, GUI view commands are disabled.
+
+                                   VC Static 
+
+               Version V-2023.12-SP2-3 for linux64 - Oct 12, 2024
+
+                    Copyright (c) 2010 - 2024 Synopsys, Inc.
+   This software and the associated documentation are proprietary to Synopsys,
+ Inc. This software may only be used in accordance with the terms and conditions
+ of a written license agreement with Synopsys, Inc. All other use, reproduction,
+   or distribution of this software is strictly prohibited.  Licensed Products
+     communicate with Synopsys servers for the purpose of providing software
+    updates, detecting software piracy and verifying that customers are using
+    Licensed Products in conformity with the applicable License Key for such
+  Licensed Products. Synopsys will use information gathered in connection with
+    this process to deliver software updates and pursue software pirates and
+                                   infringers.
+
+ Inclusivity & Diversity - Visit SolvNetPlus to read the "Synopsys Statement on
+            Inclusivity and Diversity" (Refer to article 000036315 at
+                        https://solvnetplus.synopsys.com)
+
+vcf> vcf> # VC Formal FPV, bug-injected: dotprod_top with BUG_INT8_ROUND must FALSIFY
+# the equivalence property (proves the proof has teeth).
+set_fml_appmode FPV
+1
+set design dotprod_top
+dotprod_top
+read_file -top $design -format sverilog -sva \
+  -vcs {-f ../RTL/filelist +define+BUG_INT8_ROUND}
+Warning-[SFCORW] Source file cannot be opened
+  Source file "nvfp4_unpack.svh" cannot be opened for reading due to 'No such 
+  file or directory'.
+  It will be skipped.
+  "../../rtl/dotprod_pkg.sv", 89
+  Source info:   `include "nvfp4_unpack.svh"
+
+Note-[SV-LCM-PPWI] Package previously wildcard imported
+../../rtl/mul_lane.sv, 3
+$unit
+  Package 'dotprod_pkg' already wildcard imported. 
+  Ignoring dotprod_pkg::*
+  See the SystemVerilog LRM(1800-2005), section 19.2.1.
+
+Note-[SV-LCM-PPWI] Package previously wildcard imported
+../../rtl/align_to_fixed.sv, 3
+$unit
+  Package 'dotprod_pkg' already wildcard imported. 
+  Ignoring dotprod_pkg::*
+  See the SystemVerilog LRM(1800-2005), section 19.2.1.
+
+Note-[SV-LCM-PPWI] Package previously wildcard imported
+../../rtl/exact_acc_tree.sv, 3
+$unit
+  Package 'dotprod_pkg' already wildcard imported. 
+  Ignoring dotprod_pkg::*
+  See the SystemVerilog LRM(1800-2005), section 19.2.1.
+
+Note-[SV-LCM-PPWI] Package previously wildcard imported
+../../rtl/final_round.sv, 3
+$unit
+  Package 'dotprod_pkg' already wildcard imported. 
+  Ignoring dotprod_pkg::*
+  See the SystemVerilog LRM(1800-2005), section 19.2.1.
+
+Note-[SV-LCM-PPWI] Package previously wildcard imported
+../../rtl/front_end_bf16.sv, 3
+$unit
+  Package 'dotprod_pkg' already wildcard imported. 
+  Ignoring dotprod_pkg::*
+  See the SystemVerilog LRM(1800-2005), section 19.2.1.
+
+Note-[SV-LCM-PPWI] Package previously wildcard imported
+../../rtl/mul_lane_bf16.sv, 3
+$unit
+  Package 'dotprod_pkg' already wildcard imported. 
+  Ignoring dotprod_pkg::*
+  See the SystemVerilog LRM(1800-2005), section 19.2.1.
+
+Note-[SV-LCM-PPWI] Package previously wildcard imported
+../../rtl/align_bf16.sv, 3
+$unit
+  Package 'dotprod_pkg' already wildcard imported. 
+  Ignoring dotprod_pkg::*
+  See the SystemVerilog LRM(1800-2005), section 19.2.1.
+
+Note-[SV-LCM-PPWI] Package previously wildcard imported
+../../rtl/special_case_bf16.sv, 3
+$unit
+  Package 'dotprod_pkg' already wildcard imported. 
+  Ignoring dotprod_pkg::*
+  See the SystemVerilog LRM(1800-2005), section 19.2.1.
+
+Note-[SV-LCM-PPWI] Package previously wildcard imported
+../../rtl/final_round_bf16.sv, 3
+$unit
+  Package 'dotprod_pkg' already wildcard imported. 
+  Ignoring dotprod_pkg::*
+  See the SystemVerilog LRM(1800-2005), section 19.2.1.
+
+Note-[SV-LCM-PPWI] Package previously wildcard imported
+../../rtl/front_end_nvfp4.sv, 3
+$unit
+  Package 'dotprod_pkg' already wildcard imported. 
+  Ignoring dotprod_pkg::*
+  See the SystemVerilog LRM(1800-2005), section 19.2.1.
+
+Note-[SV-LCM-PPWI] Package previously wildcard imported
+../../rtl/mul_lane_nvfp4.sv, 3
+$unit
+  Package 'dotprod_pkg' already wildcard imported. 
+  Ignoring dotprod_pkg::*
+  See the SystemVerilog LRM(1800-2005), section 19.2.1.
+
+Note-[SV-LCM-PPWI] Package previously wildcard imported
+../../rtl/align_nvfp4.sv, 3
+$unit
+  Package 'dotprod_pkg' already wildcard imported. 
+  Ignoring dotprod_pkg::*
+  See the SystemVerilog LRM(1800-2005), section 19.2.1.
+
+Note-[SV-LCM-PPWI] Package previously wildcard imported
+../../rtl/scale_mul_nvfp4.sv, 3
+$unit
+  Package 'dotprod_pkg' already wildcard imported. 
+  Ignoring dotprod_pkg::*
+  See the SystemVerilog LRM(1800-2005), section 19.2.1.
+
+Note-[SV-LCM-PPWI] Package previously wildcard imported
+../../rtl/final_round_nvfp4.sv, 3
+$unit
+  Package 'dotprod_pkg' already wildcard imported. 
+  Ignoring dotprod_pkg::*
+  See the SystemVerilog LRM(1800-2005), section 19.2.1.
+
+Note-[SV-LCM-PPWI] Package previously wildcard imported
+../../rtl/dotprod_top.sv, 3
+$unit
+  Package 'dotprod_pkg' already wildcard imported. 
+  Ignoring dotprod_pkg::*
+  See the SystemVerilog LRM(1800-2005), section 19.2.1.
+
+Note-[SV-LCM-PPWI] Package previously wildcard imported
+../RTL/dotprod_top_sva.sva, 3
+$unit
+  Package 'dotprod_pkg' already wildcard imported. 
+  Ignoring dotprod_pkg::*
+  See the SystemVerilog LRM(1800-2005), section 19.2.1.
+
+Lint-[XMRE-L] Cross-module reference resolution error
+../../ref/dotprod_ref_nvfp4.svh, 68
+"ref_unpack_nvfp4"
+  The cross-module reference in following instance path cannot be resolved.
+  'ROOT.dotprod_pkg'
+
+Lint-[XMRE-L] Cross-module reference resolution error
+../../ref/dotprod_ref_nvfp4.svh, 69
+"ref_unpack_nvfp4"
+  The cross-module reference in following instance path cannot be resolved.
+  'ROOT.dotprod_pkg'
+
+Info: Invoking New SVA Compiler Instrument...
+Info: SVAC-NC Start
+Info: SVAC-NC Finished
+Info: Invoking Simon...
+Info: Simon VCS Start
+=======================================================
+VCS CPU Time(s)     :0.40
+SIMON CPU Time(s)   :0.77
+SIMON Total Time(s) :0.18
+Peak Memory(MB)     :483
+=======================================================
+Info: Simon VCS Finished
+Info: Simon call complete 
+Info: Exiting after Simon Analysis 
+Verdi KDB elaboration done and the database successfully generated: 0 error(s), 0 warning(s)
+[Info] DB_COPT045: Vcs analyzer task has finished.
+[Info] PROP_I_COLLECT: Collecting Source Properties from the view:dotprod_top.
+# Gate Counts 
+Number of Flat Instances = 17448
+Number of Operator = 17448
+Number of Libcells = 0
+Number of Black-Box Instances = 0
+Number of FlipFlop BitWise = 0
+Number of Latch Bitwise = 0
+Number of Nand BitWise = 16
+Number of Comb logic = 4617
+
+1
+# Combinational DUV: named virtual clock, no reset.
+create_clock -name vclk -period 100
+fpv_run_top_buginjected.tcl:10: [Info] CLOCK_WITHOUT_SOURCES: Creating clock named 'vclk' with no sources.
+1
+sim_run -stable
+[Info] SIM_I_CREATE: Create Simulation Model.
+1
+sim_save_reset
+1
+check_fv -block
+[Info] FORMAL_I_CREATE: Create Formal Model:dotprod_top.
+[Info] FORMAL_I_RUN: Starting formal verification for check_fv
+	  Id: 0  Goals: 4  Constraints: 1  Block Mode: true
+[Info] LIC_UNUSED_WORKERS: 8 unused worker(s) based 1 licenses needed to support 4 workers requested.
+	Use 'set_grid_usage' to maximize worker usage and improve performance, if there are sufficient compute resources to support more workers.
+	Each runtime license supports 12 workers.
+[Info] LIC_RT_CHECKOUT: VC Formal run time license checkout. Base:1  FPV:1.
+[Info] RETRIEVE_LEARN_DATA: Retrieved learned data from (local directory) dotprod_top_learn_dir.
+[Info] PROP_I_RESULT: dotprod_top.u_sva.c_int8_sat_unreachable  uncoverable    00:00:01
+[Info] PROP_I_RESULT: dotprod_top.u_sva.a_result_matches_ref  falsified    00:00:01
+[Info] PROP_I_RESULT: dotprod_top.u_sva.c_positive_result  covered    00:00:01
+[Info] PROP_I_RESULT: dotprod_top.u_sva.c_negative_result  covered    00:00:01
+1
+report_fv -list
+
+  Summary Results
+   Property Summary: FPV
+   -----------------
+   > Assertion
+     - # found        : 1
+     - # falsified    : 1
+
+   > Cover
+     - # found        : 3
+     - # covered      : 2
+     - # uncoverable  : 1
+
+   > Constraint
+     - # found        : 1
+
+
+  List Results
+   Property List:
+   --------------
+   > Assertion
+     # Assertion: 1
+     [  0] falsified   (depth=0)                   -  dotprod_top.u_sva.a_result_matches_ref
+
+   > Cover
+     # Cover: 3
+     [  2] uncoverable                             -  dotprod_top.u_sva.c_int8_sat_unreachable
+     [  3] covered     (depth=0)                   -  dotprod_top.u_sva.c_negative_result
+     [  4] covered     (depth=0)                   -  dotprod_top.u_sva.c_positive_result
+
+   > Constraint
+     # Constraint: 1
+     [  1] constrained                             -  dotprod_top.u_sva.am_int8_mode
+
+
+1
+puts "FPV_RUN_TOP_BUGINJECTED_DONE"
+FPV_RUN_TOP_BUGINJECTED_DONE
+quit -f
+=======================================================
+Total Time(S)  :12.31
+CPU Time(S)    :6.20
+Peak Memory(MB):1431
+========================Formal=========================
+Engine Wall Time(S)    :5.40
+Engine Peak Memory(MB) :375
+=======================================================

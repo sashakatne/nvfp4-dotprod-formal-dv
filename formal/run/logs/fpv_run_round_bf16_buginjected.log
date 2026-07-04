@@ -1,0 +1,20 @@
+               Version V-2023.12-SP2-3 for linux64 - Oct 12, 2024
+    updates, detecting software piracy and verifying that customers are using
+# Gate Counts 
+----- assertion status -----
+[Info] PROP_I_RESULT: final_round_bf16.u_sva.a_numeric_round  falsified    00:00:01
+[Info] PROP_I_RESULT: final_round_bf16.u_sva.c_numeric_pos  covered    00:00:01
+[Info] PROP_I_RESULT: final_round_bf16.u_sva.c_numeric_neg  covered    00:00:01
+[Info] PROP_I_RESULT: final_round_bf16.u_sva.c_numeric_zero  covered    00:00:01
+[Info] PROP_I_RESULT: final_round_bf16.u_sva.c_bypass  covered    00:00:01
+[Info] PROP_I_RESULT: final_round_bf16.u_sva.a_special_bypass  proven    00:00:02
+     - # proven       : 1
+     - # falsified    : 1
+     - # covered      : 4
+     [  0] falsified   (depth=0)                   -  final_round_bf16.u_sva.a_numeric_round
+     [  1] proven                                  -  final_round_bf16.u_sva.a_special_bypass
+     [  3] covered     (depth=0)                   -  final_round_bf16.u_sva.c_bypass
+     [  4] covered     (depth=0)                   -  final_round_bf16.u_sva.c_numeric_neg
+     [  5] covered     (depth=0)                   -  final_round_bf16.u_sva.c_numeric_pos
+     [  6] covered     (depth=0)                   -  final_round_bf16.u_sva.c_numeric_zero
+EVIDENCE_VERDICT: job=fpv_run_round_bf16_buginjected kind=bug proven=1 falsified=1 covered=4

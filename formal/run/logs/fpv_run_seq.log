@@ -1,0 +1,19 @@
+               Version V-2023.12-SP2-3 for linux64 - Oct 12, 2024
+    updates, detecting software piracy and verifying that customers are using
+# Gate Counts 
+----- assertion status -----
+[Info] PROP_I_RESULT: dotprod_seq.u_sva.p_no_out_at_reset  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_seq.u_sva.p_sat_alias  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_seq.u_sva.p_stall_blocks_ready  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_seq.u_sva.c_accept  covered:1    00:00:02
+[Info] PROP_I_RESULT: dotprod_seq.u_sva.c_backpressure  covered:3    00:00:02
+[Info] PROP_I_RESULT: dotprod_seq.u_sva.p_hold_stable  proven    00:00:07
+     - # proven       : 4
+     - # covered      : 2
+     [  2] proven                   (non_vacuous)  -  dotprod_seq.u_sva.p_hold_stable
+     [  3] proven                   (non_vacuous)  -  dotprod_seq.u_sva.p_no_out_at_reset
+     [  4] proven                                  -  dotprod_seq.u_sva.p_sat_alias
+     [  5] proven                   (non_vacuous)  -  dotprod_seq.u_sva.p_stall_blocks_ready
+     [  0] covered     (depth=1)                   -  dotprod_seq.u_sva.c_accept
+     [  1] covered     (depth=3)                   -  dotprod_seq.u_sva.c_backpressure
+EVIDENCE_VERDICT: job=fpv_run_seq kind=clean proven=4 falsified=0 covered=2

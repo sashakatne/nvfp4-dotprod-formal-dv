@@ -1,0 +1,22 @@
+               Version V-2023.12-SP2-3 for linux64 - Oct 12, 2024
+    updates, detecting software piracy and verifying that customers are using
+# Gate Counts 
+----- assertion status -----
+[Info] PROP_I_RESULT: final_round_nvfp4.u_sva.c_max_mag  covered    00:00:01
+[Info] PROP_I_RESULT: final_round_nvfp4.u_sva.c_numeric_zero  covered    00:00:01
+[Info] PROP_I_RESULT: final_round_nvfp4.u_sva.c_numeric_neg  covered    00:00:01
+[Info] PROP_I_RESULT: final_round_nvfp4.u_sva.a_nan_bypass  falsified    00:00:01
+[Info] PROP_I_RESULT: final_round_nvfp4.u_sva.c_nan  covered    00:00:01
+[Info] PROP_I_RESULT: final_round_nvfp4.u_sva.c_numeric_pos  covered    00:00:01
+[Info] PROP_I_RESULT: final_round_nvfp4.u_sva.a_numeric_round  proven    00:00:02
+     - # proven       : 1
+     - # falsified    : 1
+     - # covered      : 5
+     [  0] falsified   (depth=0)                   -  final_round_nvfp4.u_sva.a_nan_bypass
+     [  1] proven                                  -  final_round_nvfp4.u_sva.a_numeric_round
+     [  2] covered     (depth=0)                   -  final_round_nvfp4.u_sva.c_max_mag
+     [  3] covered     (depth=0)                   -  final_round_nvfp4.u_sva.c_nan
+     [  4] covered     (depth=0)                   -  final_round_nvfp4.u_sva.c_numeric_neg
+     [  5] covered     (depth=0)                   -  final_round_nvfp4.u_sva.c_numeric_pos
+     [  6] covered     (depth=0)                   -  final_round_nvfp4.u_sva.c_numeric_zero
+EVIDENCE_VERDICT: job=fpv_run_round_nvfp4_buginjected kind=bug proven=1 falsified=1 covered=5

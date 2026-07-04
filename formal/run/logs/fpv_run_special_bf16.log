@@ -1,0 +1,27 @@
+               Version V-2023.12-SP2-3 for linux64 - Oct 12, 2024
+    updates, detecting software piracy and verifying that customers are using
+# Gate Counts 
+----- assertion status -----
+[Info] PROP_I_RESULT: special_case_bf16.u_sva.a_flags_sane  proven    00:00:01
+[Info] PROP_I_RESULT: special_case_bf16.u_sva.a_nan_dominates  proven    00:00:01
+[Info] PROP_I_RESULT: special_case_bf16.u_sva.c_defer  covered    00:00:02
+[Info] PROP_I_RESULT: special_case_bf16.u_sva.c_neg_inf  covered    00:00:02
+[Info] PROP_I_RESULT: special_case_bf16.u_sva.c_qnan  covered    00:00:02
+[Info] PROP_I_RESULT: special_case_bf16.u_sva.c_pos_inf  covered    00:00:02
+[Info] PROP_I_RESULT: special_case_bf16.u_sva.c_inf_minus_inf  covered    00:00:02
+[Info] PROP_I_RESULT: special_case_bf16.u_sva.a_defer_when_finite  proven    00:00:02
+[Info] PROP_I_RESULT: special_case_bf16.u_sva.a_single_inf  proven    00:00:02
+[Info] PROP_I_RESULT: special_case_bf16.u_sva.a_valid_iff_special  proven    00:00:04
+     - # proven       : 5
+     - # covered      : 5
+     [  0] proven                                  -  special_case_bf16.u_sva.a_defer_when_finite
+     [  1] proven                                  -  special_case_bf16.u_sva.a_flags_sane
+     [  2] proven                                  -  special_case_bf16.u_sva.a_nan_dominates
+     [  3] proven                                  -  special_case_bf16.u_sva.a_single_inf
+     [  4] proven                                  -  special_case_bf16.u_sva.a_valid_iff_special
+     [  5] covered     (depth=0)                   -  special_case_bf16.u_sva.c_defer
+     [  6] covered     (depth=0)                   -  special_case_bf16.u_sva.c_inf_minus_inf
+     [  7] covered     (depth=0)                   -  special_case_bf16.u_sva.c_neg_inf
+     [  8] covered     (depth=0)                   -  special_case_bf16.u_sva.c_pos_inf
+     [  9] covered     (depth=0)                   -  special_case_bf16.u_sva.c_qnan
+EVIDENCE_VERDICT: job=fpv_run_special_bf16 kind=clean proven=5 falsified=0 covered=5

@@ -13,8 +13,8 @@ vsim.wlf
 .Xil/
 sim/coverage/
 sim/transcripts/
-verif/sim/coverage/
-verif/sim/transcripts/
+verif/sim/coverage/*
+verif/sim/transcripts/*
 
 # Formal artifacts
 fml_*/
@@ -32,7 +32,7 @@ ucli.key
 *_learn_dir/
 DVEfiles/
 jgproject/
-formal/run/logs/
+formal/run/logs/*
 
 # LaTeX / doc build
 *.aux
@@ -63,3 +63,9 @@ AGENTS.md
 .superpowers/
 docs/superpowers/
 tasks/
+
+# --- Curated evidence: force-track the committed tails (MUST be after the global *.log above) ---
+!formal/run/logs/fpv_run_*.log
+!formal/run/logs/RC_SUMMARY_m5.txt
+!verif/sim/transcripts/m5_uvm_regression.log
+!verif/sim/coverage/coverage_summary_m5.txt

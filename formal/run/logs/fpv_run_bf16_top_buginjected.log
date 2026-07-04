@@ -1,0 +1,34 @@
+               Version V-2023.12-SP2-3 for linux64 - Oct 12, 2024
+    updates, detecting software piracy and verifying that customers are using
+# Gate Counts 
+----- assertion status -----
+[Info] PROP_I_RESULT: dotprod_top.u_bf16_sva.a_acc_is_lane_sum  proven    00:00:01
+[Info] PROP_I_RESULT: dotprod_top.u_bf16_sva.c_acc_neg  covered    00:00:01
+[Info] PROP_I_RESULT: dotprod_top.u_bf16_sva.c_numeric  covered    00:00:01
+[Info] PROP_I_RESULT: dotprod_top.u_bf16_sva.c_acc_pos  covered    00:00:01
+[Info] PROP_I_RESULT: dotprod_top.u_bf16_sva.c_invalid  covered    00:00:01
+[Info] PROP_I_RESULT: dotprod_top.u_bf16_sva.c_nan  covered    00:00:01
+[Info] PROP_I_RESULT: dotprod_top.u_bf16_sva.c_neg_inf  covered    00:00:01
+[Info] PROP_I_RESULT: dotprod_top.u_bf16_sva.c_oor  covered    00:00:01
+[Info] PROP_I_RESULT: dotprod_top.u_bf16_sva.c_pos_inf  covered    00:00:01
+[Info] PROP_I_RESULT: dotprod_top.u_bf16_sva.a_special_result_matches_ref  falsified    00:00:02
+[Info] PROP_I_RESULT: dotprod_top.u_bf16_sva.a_special_status_matches_ref  falsified    00:00:02
+[Info] PROP_I_RESULT: dotprod_top.u_bf16_sva.c_special  covered    00:00:02
+[Info] PROP_I_RESULT: dotprod_top.u_bf16_sva.a_special_valid_matches_ref  proven    00:00:02
+     - # proven       : 2
+     - # falsified    : 2
+     - # covered      : 9
+     [   0] proven                                  -  dotprod_top.u_bf16_sva.a_acc_is_lane_sum
+     [   1] falsified   (depth=0)                   -  dotprod_top.u_bf16_sva.a_special_result_matches_ref
+     [   2] falsified   (depth=0)                   -  dotprod_top.u_bf16_sva.a_special_status_matches_ref
+     [   3] proven                                  -  dotprod_top.u_bf16_sva.a_special_valid_matches_ref
+     [   5] covered     (depth=0)                   -  dotprod_top.u_bf16_sva.c_acc_neg
+     [   6] covered     (depth=0)                   -  dotprod_top.u_bf16_sva.c_acc_pos
+     [   7] covered     (depth=0)                   -  dotprod_top.u_bf16_sva.c_invalid
+     [   8] covered     (depth=0)                   -  dotprod_top.u_bf16_sva.c_nan
+     [   9] covered     (depth=0)                   -  dotprod_top.u_bf16_sva.c_neg_inf
+     [  10] covered     (depth=0)                   -  dotprod_top.u_bf16_sva.c_numeric
+     [  11] covered     (depth=0)                   -  dotprod_top.u_bf16_sva.c_oor
+     [  12] covered     (depth=0)                   -  dotprod_top.u_bf16_sva.c_pos_inf
+     [  13] covered     (depth=0)                   -  dotprod_top.u_bf16_sva.c_special
+EVIDENCE_VERDICT: job=fpv_run_bf16_top_buginjected kind=bug proven=2 falsified=2 covered=9

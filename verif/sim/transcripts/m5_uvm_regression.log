@@ -1,0 +1,38 @@
+# QuestaSim-64 vlog 2024.2 Compiler 2024.05 May 20 2024
+----- per-test normalized summary -----
+TEST dotprod_random_test matched=500 mismatched=0 leftover=0 UVM_ERROR=0 UVM_FATAL=0
+TEST dotprod_backpressure_test matched=1000 mismatched=0 leftover=0 UVM_ERROR=0 UVM_FATAL=0
+TEST dotprod_corner_test matched=9 mismatched=0 leftover=0 UVM_ERROR=0 UVM_FATAL=0
+TEST dotprod_bf16_test matched=500 mismatched=0 leftover=0 UVM_ERROR=0 UVM_FATAL=0
+TEST dotprod_bf16_corner_test matched=10 mismatched=0 leftover=0 UVM_ERROR=0 UVM_FATAL=0
+TEST dotprod_nvfp4_test matched=500 mismatched=0 leftover=0 UVM_ERROR=0 UVM_FATAL=0
+TEST dotprod_nvfp4_corner_test matched=8 mismatched=0 leftover=0 UVM_ERROR=0 UVM_FATAL=0
+----- raw tool evidence -----
+# UVM_INFO ../uvm/dotprod_scoreboard.sv(83) @ 11205000: uvm_test_top.env.scb [SCB] SCOREBOARD matched=500 mismatched=0 leftover=0
+# --- UVM Report Summary ---
+# UVM_ERROR :    0
+# UVM_FATAL :    0
+# UVM_INFO ../uvm/dotprod_scoreboard.sv(83) @ 22115000: uvm_test_top.env.scb [SCB] SCOREBOARD matched=1000 mismatched=0 leftover=0
+# --- UVM Report Summary ---
+# UVM_ERROR :    0
+# UVM_FATAL :    0
+# UVM_INFO ../uvm/dotprod_scoreboard.sv(83) @ 325000: uvm_test_top.env.scb [SCB] SCOREBOARD matched=9 mismatched=0 leftover=0
+# --- UVM Report Summary ---
+# UVM_ERROR :    0
+# UVM_FATAL :    0
+# UVM_INFO ../uvm/dotprod_scoreboard.sv(83) @ 11205000: uvm_test_top.env.scb [SCB] SCOREBOARD matched=500 mismatched=0 leftover=0
+# --- UVM Report Summary ---
+# UVM_ERROR :    0
+# UVM_FATAL :    0
+# UVM_INFO ../uvm/dotprod_scoreboard.sv(83) @ 345000: uvm_test_top.env.scb [SCB] SCOREBOARD matched=10 mismatched=0 leftover=0
+# --- UVM Report Summary ---
+# UVM_ERROR :    0
+# UVM_FATAL :    0
+# UVM_INFO ../uvm/dotprod_scoreboard.sv(83) @ 11205000: uvm_test_top.env.scb [SCB] SCOREBOARD matched=500 mismatched=0 leftover=0
+# --- UVM Report Summary ---
+# UVM_ERROR :    0
+# UVM_FATAL :    0
+# UVM_INFO ../uvm/dotprod_scoreboard.sv(83) @ 295000: uvm_test_top.env.scb [SCB] SCOREBOARD matched=8 mismatched=0 leftover=0
+# --- UVM Report Summary ---
+# UVM_ERROR :    0
+# UVM_FATAL :    0

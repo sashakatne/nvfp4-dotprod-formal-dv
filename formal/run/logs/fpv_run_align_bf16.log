@@ -1,0 +1,31 @@
+               Version V-2023.12-SP2-3 for linux64 - Oct 12, 2024
+    updates, detecting software piracy and verifying that customers are using
+# Gate Counts 
+----- assertion status -----
+[Info] PROP_I_RESULT: align_bf16.u_sva.g_lane[0].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: align_bf16.u_sva.g_lane[1].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: align_bf16.u_sva.g_lane[2].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: align_bf16.u_sva.g_lane[3].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: align_bf16.u_sva.g_lane[4].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: align_bf16.u_sva.g_lane[5].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: align_bf16.u_sva.g_lane[6].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: align_bf16.u_sva.g_lane[7].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: align_bf16.u_sva.c_finite_neg  covered    00:00:01
+[Info] PROP_I_RESULT: align_bf16.u_sva.c_finite_pos  covered    00:00:01
+[Info] PROP_I_RESULT: align_bf16.u_sva.c_special  covered    00:00:01
+[Info] PROP_I_RESULT: align_bf16.u_sva.c_zero  covered    00:00:01
+     - # proven       : 8
+     - # covered      : 4
+     [   4] proven                                  -  align_bf16.u_sva.g_lane[0].a_align_lane
+     [   6] proven                                  -  align_bf16.u_sva.g_lane[1].a_align_lane
+     [   8] proven                                  -  align_bf16.u_sva.g_lane[2].a_align_lane
+     [  10] proven                                  -  align_bf16.u_sva.g_lane[3].a_align_lane
+     [  12] proven                                  -  align_bf16.u_sva.g_lane[4].a_align_lane
+     [  14] proven                                  -  align_bf16.u_sva.g_lane[5].a_align_lane
+     [  16] proven                                  -  align_bf16.u_sva.g_lane[6].a_align_lane
+     [  18] proven                                  -  align_bf16.u_sva.g_lane[7].a_align_lane
+     [   0] covered     (depth=0)                   -  align_bf16.u_sva.c_finite_neg
+     [   1] covered     (depth=0)                   -  align_bf16.u_sva.c_finite_pos
+     [   2] covered     (depth=0)                   -  align_bf16.u_sva.c_special
+     [   3] covered     (depth=0)                   -  align_bf16.u_sva.c_zero
+EVIDENCE_VERDICT: job=fpv_run_align_bf16 kind=clean proven=8 falsified=0 covered=4

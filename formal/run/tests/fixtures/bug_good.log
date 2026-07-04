@@ -1,0 +1,6 @@
+Synopsys VC Formal Version V-2023.12-SP2-3
+Run: 2026-07-03 10:01:00
+Model: gates=6150 inputs=130
+Assertion                         Status
+a_result_matches_ref              falsified
+EVIDENCE_VERDICT: job=fpv_run_top_buginjected kind=bug proven=0 falsified=1 covered=2

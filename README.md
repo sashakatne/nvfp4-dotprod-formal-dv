@@ -114,8 +114,7 @@ out of the hardest equivalence miters.
 | [`verif/uvm/`](verif/uvm) | UVM agents, sequences, scoreboard, coverage, and tests |
 | [`verif/sim/run.do`](verif/sim/run.do) | UVM regression run script |
 
-Raw logs, transcripts, UCDBs, and coverage reports are generated artifacts and
-are intentionally ignored.
+Raw run databases, waveforms, UCDBs, and full tool logs are generated artifacts and are intentionally ignored; curated proof/coverage summaries are tracked (see Artifact Policy).
 
 </details>
 
@@ -271,16 +270,17 @@ reachable merged coverage to 100.00%.
 
 ## Artifact Policy
 
-Generated EDA outputs are intentionally not tracked:
+Curated, human-readable proof and coverage summaries ARE checked in as verification evidence:
 
-- Formal run databases and logs
-- Simulation transcripts
-- Waveforms
-- UCDB coverage databases and generated coverage reports
-- Local tool scratch directories
+- Formal proof tails: [`formal/run/logs/`](formal/run/logs) (22 jobs plus `RC_SUMMARY_m5.txt`)
+- UVM regression transcript: [`verif/sim/transcripts/m5_uvm_regression.log`](verif/sim/transcripts/m5_uvm_regression.log)
+- Merged coverage summary: [`verif/sim/coverage/coverage_summary_m5.txt`](verif/sim/coverage/coverage_summary_m5.txt)
 
-The checked-in source tree is intended to be reproducible from RTL, reference
-models, formal scripts, simulation scripts, UVM source, and summarized reports.
+Regenerate with `formal/run/capture_evidence.sh` and `verif/sim/capture_evidence.sh`; validate with `formal/run/check_evidence.sh`.
+
+Raw and binary EDA outputs remain generated artifacts and are NOT tracked: formal run databases and full logs, UCDB coverage databases, waveforms, and local tool scratch directories.
+
+The checked-in source tree is reproducible from RTL, reference models, formal scripts, simulation scripts, UVM source, and the summarized reports.
 
 ## License
 

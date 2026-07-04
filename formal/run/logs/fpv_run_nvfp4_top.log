@@ -1,0 +1,57 @@
+               Version V-2023.12-SP2-3 for linux64 - Oct 12, 2024
+    updates, detecting software piracy and verifying that customers are using
+# Gate Counts 
+----- assertion status -----
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.a_inner_is_lane_sum  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.a_scale_exp_ref  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.a_scale_nan_ref  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.a_scale_sig_ref  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.g_lane_asm[0].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.g_lane_asm[10].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.g_lane_asm[11].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.g_lane_asm[12].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.g_lane_asm[13].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.g_lane_asm[14].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.g_lane_asm[15].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.g_lane_asm[1].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.g_lane_asm[2].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.g_lane_asm[3].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.g_lane_asm[4].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.g_lane_asm[5].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.g_lane_asm[6].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.g_lane_asm[7].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.g_lane_asm[8].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.g_lane_asm[9].a_align_lane  proven    00:00:00
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.c_nan  covered    00:00:02
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.c_neg_inner  covered    00:00:02
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.c_numeric  covered    00:00:02
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.c_pos_inner  covered    00:00:02
+[Info] PROP_I_RESULT: dotprod_top.u_nvfp4_sva.c_zero_scale  covered    00:00:02
+     - # proven       : 20
+     - # covered      : 5
+     [   0] proven                                  -  dotprod_top.u_nvfp4_sva.a_inner_is_lane_sum
+     [   1] proven                                  -  dotprod_top.u_nvfp4_sva.a_scale_exp_ref
+     [   2] proven                                  -  dotprod_top.u_nvfp4_sva.a_scale_nan_ref
+     [   3] proven                                  -  dotprod_top.u_nvfp4_sva.a_scale_sig_ref
+     [  11] proven                                  -  dotprod_top.u_nvfp4_sva.g_lane_asm[0].a_align_lane
+     [  13] proven                                  -  dotprod_top.u_nvfp4_sva.g_lane_asm[10].a_align_lane
+     [  15] proven                                  -  dotprod_top.u_nvfp4_sva.g_lane_asm[11].a_align_lane
+     [  17] proven                                  -  dotprod_top.u_nvfp4_sva.g_lane_asm[12].a_align_lane
+     [  19] proven                                  -  dotprod_top.u_nvfp4_sva.g_lane_asm[13].a_align_lane
+     [  21] proven                                  -  dotprod_top.u_nvfp4_sva.g_lane_asm[14].a_align_lane
+     [  23] proven                                  -  dotprod_top.u_nvfp4_sva.g_lane_asm[15].a_align_lane
+     [  25] proven                                  -  dotprod_top.u_nvfp4_sva.g_lane_asm[1].a_align_lane
+     [  27] proven                                  -  dotprod_top.u_nvfp4_sva.g_lane_asm[2].a_align_lane
+     [  29] proven                                  -  dotprod_top.u_nvfp4_sva.g_lane_asm[3].a_align_lane
+     [  31] proven                                  -  dotprod_top.u_nvfp4_sva.g_lane_asm[4].a_align_lane
+     [  33] proven                                  -  dotprod_top.u_nvfp4_sva.g_lane_asm[5].a_align_lane
+     [  35] proven                                  -  dotprod_top.u_nvfp4_sva.g_lane_asm[6].a_align_lane
+     [  37] proven                                  -  dotprod_top.u_nvfp4_sva.g_lane_asm[7].a_align_lane
+     [  39] proven                                  -  dotprod_top.u_nvfp4_sva.g_lane_asm[8].a_align_lane
+     [  41] proven                                  -  dotprod_top.u_nvfp4_sva.g_lane_asm[9].a_align_lane
+     [   6] covered     (depth=0)                   -  dotprod_top.u_nvfp4_sva.c_nan
+     [   7] covered     (depth=0)                   -  dotprod_top.u_nvfp4_sva.c_neg_inner
+     [   8] covered     (depth=0)                   -  dotprod_top.u_nvfp4_sva.c_numeric
+     [   9] covered     (depth=0)                   -  dotprod_top.u_nvfp4_sva.c_pos_inner
+     [  10] covered     (depth=0)                   -  dotprod_top.u_nvfp4_sva.c_zero_scale
+EVIDENCE_VERDICT: job=fpv_run_nvfp4_top kind=clean proven=20 falsified=0 covered=5

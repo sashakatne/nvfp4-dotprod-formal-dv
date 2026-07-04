@@ -10,7 +10,7 @@
 - Synopsys VC Formal V-2023.12-SP2-3
 - Siemens Questa 2024.2
 
-**Evidence:** Summary tables are preserved below. Raw logs and coverage reports are generated artifacts; only the waiver file is checked in.
+**Evidence:** Summary tables are preserved below. Curated proof tails, the UVM transcript, and the coverage summary are committed under formal/run/logs/, verif/sim/transcripts/, and verif/sim/coverage/ (regenerate with formal/run/capture_evidence.sh and verif/sim/capture_evidence.sh; validate with formal/run/check_evidence.sh). Raw run databases, waveforms, and full logs remain generated artifacts.
 
 ---
 
@@ -26,7 +26,7 @@ This document is the whole-project sign-off for `nvfp4-dotprod-formal-dv`. It co
 
 **Single-golden-reference philosophy:** `ref/dotprod_ref.svh` (INT8), `ref/dotprod_ref_bf16.svh` (BF16), and `ref/dotprod_ref_nvfp4.svh` (NVFP4) are shared between the FPV assertion module and the UVM scoreboard. There is no model drift between the two verification methods.
 
-**M5 scope:** M4 left the NVFP4 final normalization stage covered only by directed simulation. M5 adds `fpv_run_round_nvfp4` and its bug-injected counterpart, completing formal stage-by-stage coverage for all three tiers. Merged UVM coverage closes to 100.00% (reachable). A full 18-proof / 7-test regression confirms every prior result is still green.
+**M5 scope:** M4 left the NVFP4 final normalization stage covered only by directed simulation. M5 adds `fpv_run_round_nvfp4` and its bug-injected counterpart, completing formal stage-by-stage coverage for all three tiers. Merged UVM coverage closes to 100.00% (reachable). A full 22-job (11 clean + 11 bug-injected) / 7-test regression confirms every prior result is still green.
 
 ---
 
@@ -54,6 +54,8 @@ All runs on VC Formal V-2023.12-SP2-3. Raw logs are generated artifacts and are 
 
 - `c_int8_sat_unreachable` (`fpv_run_top`): the maximum INT8 8-lane sum is 8 x 128 x 128 = 131 072, which requires 19 signed bits; the 32-bit output cannot saturate.
 - `c_max_scale` (`fpv_run_nvfp4_top`): `scale_sig == 0xFF` is unreachable because the maximum product of two E2M1 significands is 225 (< 256).
+
+> Note: the committed evidence in `formal/run/logs/fpv_run_lane_bf16.log` shows 24 proven / 13 covered — higher than the 21 / 6 sign-off snapshot above because the post-review BF16 full-range hardening (see §6b) added `is_oor` decode assertions and operand-pair cross covers to the lane. The committed logs are the current authoritative counts; the table row is the original M5 sign-off snapshot. All other jobs match their committed logs.
 
 ### 2.2 Bug-injected proofs (7 proof jobs)
 
@@ -177,8 +179,12 @@ vcf -batch -f fpv_run_seq_buginjected.tcl
 
 # BF16 formal (from formal/run)
 vcf -batch -f fpv_run_lane_bf16.tcl
+vcf -batch -f fpv_run_lane_bf16_buginjected.tcl
+vcf -batch -f fpv_run_lane_bf16_oor_buginjected.tcl
 vcf -batch -f fpv_run_align_bf16.tcl
+vcf -batch -f fpv_run_align_bf16_buginjected.tcl
 vcf -batch -f fpv_run_round_bf16.tcl
+vcf -batch -f fpv_run_round_bf16_buginjected.tcl
 vcf -batch -f fpv_run_special_bf16.tcl
 vcf -batch -f fpv_run_bf16_top.tcl
 vcf -batch -f fpv_run_bf16_top_buginjected.tcl
