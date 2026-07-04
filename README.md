@@ -281,3 +281,7 @@ Generated EDA outputs are intentionally not tracked:
 
 The checked-in source tree is intended to be reproducible from RTL, reference
 models, formal scripts, simulation scripts, UVM source, and summarized reports.
+
+## License
+
+Licensed under the Apache License, Version 2.0. See [`LICENSE`](LICENSE).
