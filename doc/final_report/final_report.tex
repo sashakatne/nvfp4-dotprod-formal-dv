@@ -227,14 +227,22 @@ fields carry saturation, invalid, NaN, and infinity indicators; the legacy
 \section{Sequential Wrapper}
 
 The sequential wrapper adds a two-stage ready/valid pipeline around the
-combinational core. A global stall freezes the pipeline whenever a valid output
-is present and the consumer deasserts \texttt{out\_ready}. The key protocol
-contract is that a held output must remain valid and stable under backpressure.
+combinational core. Each beat carries a valid bit that shifts through the two
+stages in lockstep with its data (\texttt{in\_valid \& in\_ready} into
+\texttt{v\_s1}, then into \texttt{out\_valid}), so this is a pipeline rather
+than a control FSM: there is no state register and no next-state logic, only a
+single valid bit advancing down the pipe. A global stall, derived from a single
+\texttt{always\_ff} enable, freezes both stages together whenever a valid output
+is present and the consumer deasserts \texttt{out\_ready}, so a held beat is
+never dropped, reordered, or partially updated. The key protocol contract is
+that a held output must remain valid and stable under backpressure.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.94\textwidth]{architecture_seq_dut.pdf}
-\caption{Sequential ready/valid wrapper}
+\caption{Sequential ready/valid wrapper: a two-stage pipeline with a valid bit
+shifting in lockstep with its data, and one stall enable freezing both stages
+(not a control FSM).}
 \end{figure}
 
 \section{BF16 Datapath}

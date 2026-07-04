@@ -19,6 +19,7 @@
   <rect width="1000" height="430" fill="#fbfcfe"/>
   <text x="500" y="38" text-anchor="middle" class="title">dotprod_seq Ready/Valid Wrapper</text>
   <text x="500" y="62" text-anchor="middle" class="subtitle">Two register stages around the unified INT8/BF16/NVFP4 combinational core</text>
+  <text x="500" y="86" text-anchor="middle" class="mono">valid pipeline (2-deep): in_valid &amp; in_ready  &#8594;  v_s1  &#8594;  out_valid</text>
 
   <rect x="35" y="140" width="145" height="105" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
   <text x="107.5" y="169" text-anchor="middle" class="box-title">input side</text>
@@ -27,10 +28,11 @@
   <text x="107.5" y="235" text-anchor="middle" class="box-text">a, b, mode</text>
 
   <rect x="245" y="130" width="145" height="125" rx="10" fill="#ecfdf5" stroke="#16a34a" stroke-width="2"/>
-  <text x="317.5" y="160" text-anchor="middle" class="box-title">stage 1 regs</text>
-  <text x="317.5" y="188" text-anchor="middle" class="mono">a_s1, b_s1</text>
-  <text x="317.5" y="208" text-anchor="middle" class="mono">mode_s1</text>
-  <text x="317.5" y="232" text-anchor="middle" class="box-text">loads when !stall</text>
+  <text x="317.5" y="158" text-anchor="middle" class="box-title">stage 1 regs</text>
+  <text x="317.5" y="184" text-anchor="middle" class="mono">a_s1, b_s1</text>
+  <text x="317.5" y="202" text-anchor="middle" class="mono">mode_s1</text>
+  <text x="317.5" y="220" text-anchor="middle" class="mono">v_s1 (valid)</text>
+  <text x="317.5" y="242" text-anchor="middle" class="box-text">enable = !stall</text>
 
   <rect x="455" y="95" width="205" height="195" rx="12" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
   <text x="557.5" y="126" text-anchor="middle" class="box-title">unified core</text>
@@ -42,10 +44,11 @@
   <text x="557" y="249" text-anchor="middle" class="box-text">NVFP4 path</text>
 
   <rect x="725" y="130" width="145" height="125" rx="10" fill="#ecfdf5" stroke="#16a34a" stroke-width="2"/>
-  <text x="797.5" y="160" text-anchor="middle" class="box-title">stage 2 regs</text>
-  <text x="797.5" y="188" text-anchor="middle" class="mono">result</text>
-  <text x="797.5" y="208" text-anchor="middle" class="mono">status, sat</text>
-  <text x="797.5" y="232" text-anchor="middle" class="box-text">holds on stall</text>
+  <text x="797.5" y="158" text-anchor="middle" class="box-title">stage 2 regs</text>
+  <text x="797.5" y="184" text-anchor="middle" class="mono">result</text>
+  <text x="797.5" y="202" text-anchor="middle" class="mono">status, sat</text>
+  <text x="797.5" y="220" text-anchor="middle" class="mono">out_valid</text>
+  <text x="797.5" y="242" text-anchor="middle" class="box-text">enable = !stall</text>
 
   <rect x="915" y="140" width="70" height="105" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
   <text x="950" y="169" text-anchor="middle" class="box-title">out</text>
@@ -64,5 +67,9 @@
   <rect x="65" y="318" width="145" height="34" rx="7" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
   <text x="137.5" y="340" text-anchor="middle" class="mono">in_ready = !stall</text>
 
-  <text x="500" y="392" text-anchor="middle" class="box-text">Formal focus: held output stays valid and stable whenever out_valid is high and out_ready is low.</text>
+  <!-- stall gates BOTH register stages together (single always_ff enable) -->
+  <path d="M317.5 335 V255" fill="none" stroke="#dc2626" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#arrow-red)"/>
+  <path d="M797.5 335 V255" fill="none" stroke="#dc2626" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#arrow-red)"/>
+  <text x="500" y="374" text-anchor="middle" class="box-text">One stall (a single always_ff enable) freezes both stages together: no drop, no reorder, no partial update.</text>
+  <text x="500" y="394" text-anchor="middle" class="box-text">Not an FSM: control is one valid bit shifting down the pipe, not a state graph. Formal focus: held output stays valid and stable while out_valid is high and out_ready is low.</text>
 </svg>
