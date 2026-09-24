@@ -1,6 +1,6 @@
 # M3 Final Report - BF16 Dot-Product Tier
 
-**Author:** Sasha Katne
+**Author:** Yashaswi Katne
 **Date:** 2026-07-02
 **Tools:** Questa 2021.3_1 (UVM), VC Formal V-2023.12-SP2-3
 

@@ -2,7 +2,7 @@
 
 **Formal and UVM verification for an INT8, BF16, and NVFP4 vector dot-product core**
 
-**Author:** Sasha Katne
+**Author:** Yashaswi Katne
 
 This repository verifies an 8-lane mixed-precision dot-product unit using formal
 property verification, directed simulation, and a UVM constrained-random

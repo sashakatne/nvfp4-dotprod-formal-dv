@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-03
 **Status:** Approved (design), pending implementation plan
-**Author:** Sasha Katne (with Claude)
+**Author:** Yashaswi Katne (with Claude)
 
 ## Problem
 

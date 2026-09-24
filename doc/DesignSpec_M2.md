@@ -1,6 +1,6 @@
 # Design Specification - M2: Sequential INT8 Dot-Product Wrapper
 
-**Author:** Sasha Katne
+**Author:** Yashaswi Katne
 
 ## 1. Overview
 

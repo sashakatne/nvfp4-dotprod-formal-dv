@@ -1,6 +1,6 @@
 # Verification Plan - M4: NVFP4 Dot-Product Tier
 
-**Author:** Sasha Katne
+**Author:** Yashaswi Katne
 
 ## 1. Scope
 

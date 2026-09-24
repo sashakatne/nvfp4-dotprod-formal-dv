@@ -2,7 +2,7 @@
 
 **Project:** `nvfp4-dotprod-formal-dv`
 **Milestone:** M1 - INT8 exact dot-product
-**Author:** Sasha Katne
+**Author:** Yashaswi Katne
 **Date:** 2026-06-30
 
 See `doc/architecture_dut.svg` for the datapath block diagram.

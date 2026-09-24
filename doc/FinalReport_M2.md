@@ -1,6 +1,6 @@
 # M2 Final Report - Sequential INT8 Dot-Product + Full UVM Environment
 
-**Author:** Sasha Katne
+**Author:** Yashaswi Katne
 **Date:** 2026-06-30
 **Tools:** Questa 2021.3_1 (UVM-1.1d), VC Formal V-2023.12-SP2-3
 

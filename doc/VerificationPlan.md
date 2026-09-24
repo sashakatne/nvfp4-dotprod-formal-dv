@@ -3,7 +3,7 @@
 **Project:** `nvfp4-dotprod-formal-dv`
 **Milestone:** M1 - INT8 exact dot-product
 **Methodology:** VC Formal FPV (primary) + Questa directed sim (smoke)
-**Author:** Sasha Katne
+**Author:** Yashaswi Katne
 **Date:** 2026-06-30
 
 ---

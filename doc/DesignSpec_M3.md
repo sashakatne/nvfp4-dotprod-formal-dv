@@ -1,6 +1,6 @@
 # Design Specification - M3: BF16 Dot-Product Tier
 
-**Author:** Sasha Katne
+**Author:** Yashaswi Katne
 
 ## 1. Overview
 

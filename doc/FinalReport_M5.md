@@ -2,7 +2,7 @@
 
 **Project:** `nvfp4-dotprod-formal-dv`
 **Milestone:** M5 - full regression, coverage closure, unified cross-tier sign-off
-**Author:** Sasha Katne
+**Author:** Yashaswi Katne
 **Date:** 2026-07-03
 **Status:** Complete.
 

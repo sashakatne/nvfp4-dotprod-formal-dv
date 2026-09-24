@@ -1,6 +1,6 @@
 # Verification Plan - M2: Sequential INT8 Dot-Product
 
-**Author:** Sasha Katne
+**Author:** Yashaswi Katne
 
 ## 1. Scope
 
